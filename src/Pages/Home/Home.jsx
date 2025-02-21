@@ -216,7 +216,7 @@ function Home() {
               indicators={false}
               sx={{ width: "100%", height: "100%" }}
             >
-              {HomeIntro.map((slide, index) => (
+              {homeSlides.map((slide, index) => (
                 <Box
                   key={index}
                   sx={{

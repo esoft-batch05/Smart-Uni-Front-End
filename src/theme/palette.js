@@ -18,44 +18,44 @@ export const grey = {
 };
 
 export const primary = {
-  lighter: '#F4FAFF',
-  light: '#C1E3FF',
-  main: '#309BFD',
-  dark: '#0C44AE',
-  darker: '#022438',
+  lighter: '#FFEED1',
+  light: '#FFB627',
+  main: '#FF8602',
+  dark: '#CC5803',
+  darker: '#993D00',
   contrastText: '#FFFFFF',
 };
 
 export const secondary = {
-  lighter: '#EFD6FF',
-  light: '#C684FF',
-  main: '#8E33FF',
-  dark: '#5119B7',
-  darker: '#27097A',
+  lighter: '#FFD9B3',
+  light: '#FFB27D',
+  main: '#FF8602',
+  dark: '#B35C00',
+  darker: '#7A3E00',
   contrastText: '#FFFFFF',
 };
 
 export const info = {
-  lighter: '#CAFDF5',
-  light: '#61F3F3',
-  main: '#00B8D9',
-  dark: '#006C9C',
-  darker: '#003768',
+  lighter: '#D6F0FF',
+  light: '#80D4FF',
+  main: '#0096FF',
+  dark: '#005DB2',
+  darker: '#003D80',
   contrastText: '#FFFFFF',
 };
 
 export const success = {
-  lighter: '#C8FAD6',
-  light: '#5BE49B',
+  lighter: '#E1F8E7',
+  light: '#6BD48E',
   main: '#00A76F',
-  dark: '#007867',
-  darker: '#004B50',
+  dark: '#00795B',
+  darker: '#004B40',
   contrastText: '#FFFFFF',
 };
 
 export const warning = {
-  lighter: '#FFF5CC',
-  light: '#FFD666',
+  lighter: '#FFF4D1',
+  light: '#FFD566',
   main: '#FFAB00',
   dark: '#B76E00',
   darker: '#7A4100',
@@ -63,10 +63,10 @@ export const warning = {
 };
 
 export const error = {
-  lighter: '#FFE9D5',
-  light: '#FFAC82',
-  main: '#FF5630',
-  dark: '#B71D18',
+  lighter: '#FFE3E3',
+  light: '#FFA3A3',
+  main: '#FF4D4D',
+  dark: '#B71C1C',
   darker: '#7A0916',
   contrastText: '#FFFFFF',
 };
@@ -77,11 +77,11 @@ export const common = {
 };
 
 export const action = {
-  hover: alpha(grey[500], 0.08),
-  selected: alpha(grey[500], 0.16),
-  disabled: alpha(grey[500], 0.8),
-  disabledBackground: alpha(grey[500], 0.24),
-  focus: alpha(grey[500], 0.24),
+  hover: alpha(primary.main, 0.08),
+  selected: alpha(primary.main, 0.16),
+  disabled: alpha(primary.main, 0.8),
+  disabledBackground: alpha(primary.main, 0.24),
+  focus: alpha(primary.main, 0.24),
   hoverOpacity: 0.08,
   disabledOpacity: 0.48,
 };
@@ -95,7 +95,7 @@ const base = {
   error,
   grey,
   common,
-  divider: alpha(grey[500], 0.2),
+  divider: alpha(primary.main, 0.2),
   action,
 };
 
@@ -117,7 +117,7 @@ export function palette() {
     },
     action: {
       ...base.action,
-      active: grey[600],
+      active: primary.dark,
     },
   };
 }
