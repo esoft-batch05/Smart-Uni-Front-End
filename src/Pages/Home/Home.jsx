@@ -81,7 +81,7 @@ function Home() {
                   left: "50%",
                   transform: "translate(-50%, -50%)",
                   zIndex: 3,
-                  width: "100%",
+                  width: "99%",
                   textAlign: "start",
                   padding: "0 16px",
                   "@keyframes lineLoop": {
