@@ -8,15 +8,19 @@ import { Box, Fade } from "@mui/material";
 import Router from "./Routes/Section";
 import { BrowserRouter } from "react-router-dom";
 import WhatsAppButton from "./Components/Whatsapp-Service/Whatsapp";
+import { Provider } from "react-redux";
+import store from '../src/app/store'
 
 function App() {
   return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <WhatsAppButton />
-        <Router />
-      </BrowserRouter>
-    </ThemeProvider>
+    <Provider store={store}>
+      <ThemeProvider>
+        <BrowserRouter>
+          <WhatsAppButton />
+          <Router />
+        </BrowserRouter>
+      </ThemeProvider>
+    </Provider>
   );
 }
 
