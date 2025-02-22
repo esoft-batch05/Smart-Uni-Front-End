@@ -32,7 +32,7 @@ export const secondary = {
   main: '#FF8602',
   dark: '#B35C00',
   darker: '#7A3E00',
-  contrastText: '#FFFFFF',
+  contrastText: '#FFFFFF' ,
 };
 
 export const info = {
