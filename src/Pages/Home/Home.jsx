@@ -464,9 +464,9 @@ function Home() {
           </Grid>
         </Grid>
       </Container>
-      <Box>
+      {/* <Box>
         <Footer />
-      </Box>
+      </Box> */}
     </>
   );
 }

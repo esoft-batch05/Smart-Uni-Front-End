@@ -24,7 +24,7 @@ const primary = {
 };
 
 const StyledFooter = styled("footer")({
-  backgroundColor: primary.darker,
+  backgroundColor: '#FF8602',
   color: primary.contrastText,
   padding: "2rem 0",
 });
