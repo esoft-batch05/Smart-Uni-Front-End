@@ -171,10 +171,10 @@ const ImprovedLayout = () => {
     <>
       <DrawerHeader>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 1 }}>
-          <Avatar sx={{ bgcolor: 'white', color: '#ff8300', width: 30, height: 30 }}>A</Avatar>
+          <Avatar sx={{ bgcolor: 'white', color: '#ff8300', width: 30, height: 30 }}>U</Avatar>
           {open && (
             <Typography variant="h6" noWrap component="div">
-              Aqumex
+              Smart UNI
             </Typography>
           )}
         </Box>
