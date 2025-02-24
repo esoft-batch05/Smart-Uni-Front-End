@@ -34,7 +34,7 @@ function Router() {
       children: [{ path: "/dashboard", element: <Dashboard /> }, {path: "/projects", element: <Dashboard />}],
     },
     {
-      path: '/sign-in',
+      path: '/login',
       element: <Signin />,
     },
     {
