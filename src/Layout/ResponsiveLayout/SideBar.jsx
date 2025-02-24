@@ -32,6 +32,7 @@ import {
   Help as HelpIcon,
   Settings as SettingsIcon,
   ChevronLeft as ChevronLeftIcon,
+  Logout as LogoutIcon,
   ChevronRight as ChevronRightIcon
 } from '@mui/icons-material';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
@@ -228,6 +229,9 @@ const ImprovedLayout = () => {
                 Admin
               </Typography>
             </Box>
+            <IconButton sx={{ ml: 'auto', color: 'white' }}>
+              <LogoutIcon fontSize="small" />
+            </IconButton>
           </>
         ) : (
           <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
