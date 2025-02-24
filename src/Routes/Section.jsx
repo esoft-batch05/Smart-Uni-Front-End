@@ -4,6 +4,8 @@ import Layout from "../Layout/Nav-Bar/NavBar";
 import Home from "../Pages/Home/Home";
 import MainLayout from '../Layout/ResponsiveLayout/SideBar'
 import Dashboard from "../Pages/Dashboard/Dashboard";
+import Signup from "../Pages/Signup/Signup";
+import Signin from "../Pages/Signin/Signin";
 
 function Router() {
   const routes = useRoutes([
@@ -31,6 +33,14 @@ function Router() {
       ),
       children: [{ path: "/dashboard", element: <Dashboard /> }, {path: "/projects", element: <Dashboard />}],
     },
+    {
+      path: '/sign-in',
+      element: <Signin />,
+    },
+    {
+      path: '/sign-up',
+      element: <Signup />,
+    }
   ]);
 
   return routes;
