@@ -42,7 +42,7 @@ const NavBar = ({ children }) => {
             <Button variant="outlined" color="primary">
               Login
             </Button>
-            <Button variant="contained" color="primary">
+            <Button variant="contained" color="primary" onClick={()=> navigate('dashboard')}>
               Signup
             </Button>
           </Box>
