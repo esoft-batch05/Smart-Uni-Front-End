@@ -5,6 +5,10 @@ import Home from "../Pages/Home/Home";
 import Login from "../Pages/Login/Login";
 import Signup from "../Pages/Signup/Signup";
 
+import MainLayout from '../Layout/ResponsiveLayout/SideBar'
+import Dashboard from "../Pages/Dashboard/Dashboard";
+
+
 
 function Router() {
   
@@ -28,6 +32,23 @@ function Router() {
     },
     { path: "/login", element: < Login/> },
     { path: "/signup", element: < Signup/> },
+
+      
+    },
+
+    //Main outlet
+    {
+      path: "/",
+      element: (
+        <MainLayout>
+          <Suspense>
+            <Outlet />
+          </Suspense>
+        </MainLayout>
+      ),
+      children: [{ path: "/dashboard", element: <Dashboard /> }, {path: "/projects", element: <Dashboard />}],
+    },
+
   ]);
 
   return routes;

@@ -14,7 +14,6 @@ const NavBar = ({ children }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
 
-
   return (
     <>
       <AppBar
@@ -23,10 +22,11 @@ const NavBar = ({ children }) => {
           backdropFilter: "blur(10px)",
           transition: "backdrop-filter 0.3s ease-in-out",
           boxShadow: "none",
-          backgroundColor: "rgba(255, 255, 255, 0.6)",
+          backgroundColor: "rgb(255, 255, 255)",
         }}
       >
         <Toolbar sx={{ justifyContent: "space-between" }}>
+          {/* Logo */}
           <Box
             component="img"
             sx={{
@@ -36,8 +36,19 @@ const NavBar = ({ children }) => {
             alt="Your logo"
             src={Logo}
           />
+
+          {/* Buttons on the right side */}
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <Button variant="outlined" color="primary">
+              Login
+            </Button>
+            <Button variant="contained" color="primary" onClick={()=> navigate('dashboard')}>
+              Signup
+            </Button>
+          </Box>
         </Toolbar>
       </AppBar>
+
       <Box>{children}</Box>
     </>
   );

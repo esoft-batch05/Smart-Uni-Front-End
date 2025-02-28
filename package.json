@@ -1,5 +1,5 @@
 {
-  "name": "the-english-boot-camp",
+  "name": "smart-uni",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,12 +11,13 @@
     "lint:fix": "eslint 'src/.{js,jsx,ts,tsx}' --fix"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.11.5",
-    "@mui/icons-material": "^5.15.21",
-    "@mui/material": "^5.15.21",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^5.16.14",
+    "@mui/material": "^5.16.14",
     "@react-google-maps/api": "^2.19.3",
     "@react-spring/web": "^9.7.4",
+    "@reduxjs/toolkit": "^2.5.1",
     "aos": "^2.3.4",
     "react": "^18.3.1",
     "react-countup": "^6.5.3",
@@ -24,6 +25,7 @@
     "react-intersection-observer": "^9.13.0",
     "react-lazyload": "^3.2.1",
     "react-material-ui-carousel": "^3.4.2",
+    "react-redux": "^9.2.0",
     "react-router-dom": "^6.24.1",
     "swiper": "^11.1.4"
   },

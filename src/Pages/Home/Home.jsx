@@ -14,6 +14,9 @@ import ImageList from "../../Components/ImageList/ImageList";
 import QualityCard from "../../Components/Quality Count Card/QualityCard";
 import BenifitsCard from "../../Components/Benefits Cards/BenifitsCard";
 import Footer from "../../Components/Footer/Footer";
+import { useSelector, useDispatch } from 'react-redux';
+import { increment, decrement, incrementByAmount } from '../../Reducers/counterSlice';
+
 
 import Aos from "aos";
 
@@ -24,9 +27,11 @@ const homeSlides = [
   { title: "Expand Your English Speaking", img: Image4 },
 ];
 
-const HomeIntro = [];
 
 function Home() {
+  const count = useSelector((state) => state.counter.value);
+  const dispatch = useDispatch();
+
   const variant = TypoVariant();
 
   useEffect(() => {
@@ -35,6 +40,7 @@ function Home() {
 
   return (
     <>
+     
       <Box
         sx={{
           position: "relative",
@@ -75,7 +81,7 @@ function Home() {
                   left: "50%",
                   transform: "translate(-50%, -50%)",
                   zIndex: 3,
-                  width: "100%",
+                  width: "99%",
                   textAlign: "start",
                   padding: "0 16px",
                   "@keyframes lineLoop": {
@@ -122,6 +128,7 @@ function Home() {
           ))}
         </Carousel>
       </Box>
+
 
       <Container maxWidth="xl">
         <Grid
@@ -216,7 +223,7 @@ function Home() {
               indicators={false}
               sx={{ width: "100%", height: "100%" }}
             >
-              {HomeIntro.map((slide, index) => (
+              {homeSlides.map((slide, index) => (
                 <Box
                   key={index}
                   sx={{
@@ -457,9 +464,9 @@ function Home() {
           </Grid>
         </Grid>
       </Container>
-      <Box>
+      {/* <Box>
         <Footer />
-      </Box>
+      </Box> */}
     </>
   );
 }
