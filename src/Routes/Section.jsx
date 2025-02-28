@@ -5,38 +5,26 @@ import Home from "../Pages/Home/Home";
 import Login from "../Pages/Login/Login";
 import Signup from "../Pages/Signup/Signup";
 
-import MainLayout from '../Layout/ResponsiveLayout/SideBar'
+import MainLayout from "../Layout/ResponsiveLayout/SideBar";
 import Dashboard from "../Pages/Dashboard/Dashboard";
 
-
-
 function Router() {
-  
   const routes = useRoutes([
     {
       path: "/",
       element: (
-     
         <Layout>
           <Suspense>
             <Outlet />
           </Suspense>
         </Layout>
       ),
-      children: [ 
-        { path: "/", element: <Home /> },
-       
-
-       
-      ],
+      children: [{ path: "/", element: <Home /> }],
     },
-    { path: "/login", element: < Login/> },
-    { path: "/signup", element: < Signup/> },
+    { path: "/login", element: <Login /> },
+    { path: "/signup", element: <Signup /> },
 
-      
-    },
-
-    //Main outlet
+    // Main Outlet
     {
       path: "/",
       element: (
@@ -46,9 +34,11 @@ function Router() {
           </Suspense>
         </MainLayout>
       ),
-      children: [{ path: "/dashboard", element: <Dashboard /> }, {path: "/projects", element: <Dashboard />}],
+      children: [
+        { path: "/dashboard", element: <Dashboard /> }, 
+        { path: "/projects", element: <Dashboard /> }, 
+      ],
     },
-
   ]);
 
   return routes;
