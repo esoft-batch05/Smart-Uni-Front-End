@@ -62,6 +62,8 @@ api.interceptors.response.use(
         return api(originalRequest);
       }
     }
+    store.dispatch(clearTokens());
+    window.location.href = "/login";
     return Promise.reject(error);
   }
 );

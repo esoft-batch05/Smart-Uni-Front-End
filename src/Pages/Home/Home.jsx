@@ -91,7 +91,7 @@ function Home() {
                   backgroundRepeat: "no-repeat",
                 }}
               />
-             
+
               <Box
                 sx={{
                   position: "absolute",
@@ -480,24 +480,20 @@ function Home() {
         </Grid>
       </Container>
 
-
       <Button
-                onClick={() => {
-                  testApi();
-                }}
-              >
-                tEST
-              </Button>
+        onClick={() => {
+          testApi();
+        }}
+      >
+        tEST
+      </Button>
       <Button
-                onClick={() => {
-                  login();
-                }}
-              >
-               LOGIN
-              </Button>
-      {/* <Box>
-        <Footer />
-      </Box> */}
+        onClick={() => {
+          login();
+        }}
+      >
+        LOGIN
+      </Button>
     </>
   );
 }
