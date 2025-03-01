@@ -10,7 +10,7 @@ import ImageList from "../../Components/ImageList/ImageList";
 import QualityCard from "../../Components/Quality Count Card/QualityCard";
 import BenifitsCard from "../../Components/Benefits Cards/BenifitsCard";
 import { useSelector, useDispatch } from "react-redux";
-
+import { showAlert } from '../../Utils/alertUtils';
 import { setTokens } from "../../Reducers/authSlice";
 
 import Aos from "aos";
@@ -34,6 +34,7 @@ function Home() {
         email: "kavishkasahandj@gmail.com",
         password: "Sahan@1234",
       });
+      showAlert('error', 'Operation successful!');
       dispatch(
         setTokens({
           accessToken: await response.data.token,

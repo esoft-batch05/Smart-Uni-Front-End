@@ -1,13 +1,11 @@
-import { apiMethods } from "../app/apiManager";
-const credentials = {
-    email: 'kavishkasahandj@gmail.com',
-    password: 'Sahan@1234',
-}
+import { get, post } from "../app/apiManager";
+
+
 
 class UserServices {
     static async userLogin(credentials) {
         try {
-            const response = await apiMethods.post("/admin/login", credentials);
+            const response = await post("/admin/login", credentials);
             return response.data;
         } catch (error) {
             throw error.response ? error.response.data : error;
@@ -16,7 +14,8 @@ class UserServices {
 
     static async getOrders() {
         try {
-            const response = await apiMethods.get("/orders");
+            const response = await get("/orders");
+            
             return response.data;
         } catch (error) {
             throw error.response ? error.response.data : error;

@@ -9,13 +9,15 @@ import Router from "./Routes/Section";
 import { BrowserRouter } from "react-router-dom";
 import WhatsAppButton from "./Components/Whatsapp-Service/Whatsapp";
 import { Provider } from "react-redux";
-import store from '../src/app/store'
+import store from "../src/app/store";
+import AlertSystem from "./Components/Alert/AlertSystem";
 
 function App() {
   return (
     <Provider store={store}>
       <ThemeProvider>
         <BrowserRouter>
+        <AlertSystem />
           <WhatsAppButton />
           <Router />
         </BrowserRouter>

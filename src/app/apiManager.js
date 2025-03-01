@@ -54,7 +54,12 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401) {
+      // If it's a 401 error, clear the tokens and redirect to login
+      store.dispatch(clearTokens());
+      window.location.href = "/login";
+    } else if (error.response?.status === 401 && !originalRequest._retry) {
+      // Attempt to refresh token if it's not already in the retry process
       originalRequest._retry = true;
       const newToken = await refreshToken();
       if (newToken) {
@@ -62,19 +67,14 @@ api.interceptors.response.use(
         return api(originalRequest);
       }
     }
-    store.dispatch(clearTokens());
-    window.location.href = "/login";
+
     return Promise.reject(error);
   }
 );
 
 // API methods
-const apiMethods = {
-  get: (url, params) => api.get(url, { params }),
-  post: (url, data) => api.post(url, data),
-  put: (url, data) => api.put(url, data),
-  patch: (url, data) => api.patch(url, data),
-  delete: (url) => api.delete(url),
-};
-
-export { api, apiMethods };
+export const get = (url, params) => api.get(url, { params });
+export const post = (url, data) => api.post(url, data);
+export const put = (url, data) => api.put(url, data);
+export const patch = (url, data) => api.patch(url, data);
+export const remove = (url) => api.delete(url);
