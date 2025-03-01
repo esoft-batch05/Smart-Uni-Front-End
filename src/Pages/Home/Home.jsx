@@ -1,24 +1,21 @@
-import React, { useEffect } from "react";
-import { Box, Container, Grid, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, Button, Container, Grid, Typography } from "@mui/material";
 import Carousel from "react-material-ui-carousel";
 import TypoVariant from "../../Hooks/TypoResponsive/UseTypoResponsive";
 import Image1 from "../../assets/Images/Desktop - 1.png";
 import Image2 from "../../assets/Images/Pool Table Girls.png";
 import Image3 from "../../assets/Images/Coffe Shop.png";
 import Image4 from "../../assets/Images/Beach Couple.png";
-import Sub1 from "../../assets/Images/S1.png";
-import Sub2 from "../../assets/Images/s2.png";
-import Sub3 from "../../assets/Images/s3.png";
-import Sub4 from "../../assets/Images/s4.png";
 import ImageList from "../../Components/ImageList/ImageList";
 import QualityCard from "../../Components/Quality Count Card/QualityCard";
 import BenifitsCard from "../../Components/Benefits Cards/BenifitsCard";
-import Footer from "../../Components/Footer/Footer";
-import { useSelector, useDispatch } from 'react-redux';
-import { increment, decrement, incrementByAmount } from '../../Reducers/counterSlice';
+import { useSelector, useDispatch } from "react-redux";
 
+import { setTokens } from "../../Reducers/authSlice";
 
 import Aos from "aos";
+import UserServices from "../../Services/UserService";
+import Login from "../Login/Login";
 
 const homeSlides = [
   { title: "International English Institute", img: Image1 },
@@ -27,10 +24,31 @@ const homeSlides = [
   { title: "Expand Your English Speaking", img: Image4 },
 ];
 
-
 function Home() {
   const count = useSelector((state) => state.counter.value);
   const dispatch = useDispatch();
+
+  const login = async () => {
+    try {
+      const response = await UserServices.userLogin({
+        email: "kavishkasahandj@gmail.com",
+        password: "Sahan@1234",
+      });
+      dispatch(
+        setTokens({
+          accessToken: await response.data.token,
+          refreshToken: await response.data.refreshToken,
+        })
+      );
+    } catch (error) {
+      console.error("Failed to fetch orders:", error.message);
+    }
+  };
+
+  const testApi = async () => {
+    const res = await UserServices.getOrders();
+    console.log(res);
+  };
 
   const variant = TypoVariant();
 
@@ -40,7 +58,6 @@ function Home() {
 
   return (
     <>
-     
       <Box
         sx={{
           position: "relative",
@@ -74,6 +91,7 @@ function Home() {
                   backgroundRepeat: "no-repeat",
                 }}
               />
+             
               <Box
                 sx={{
                   position: "absolute",
@@ -128,7 +146,6 @@ function Home() {
           ))}
         </Carousel>
       </Box>
-
 
       <Container maxWidth="xl">
         <Grid
@@ -237,11 +254,9 @@ function Home() {
                     justifyContent: "center",
                   }}
                 >
-                  
                   <Box
                     component="img"
-                    src={slide?.img} 
-                    
+                    src={slide?.img}
                     sx={{
                       width: "auto",
                       height: {
@@ -464,6 +479,22 @@ function Home() {
           </Grid>
         </Grid>
       </Container>
+
+
+      <Button
+                onClick={() => {
+                  testApi();
+                }}
+              >
+                tEST
+              </Button>
+      <Button
+                onClick={() => {
+                  login();
+                }}
+              >
+               LOGIN
+              </Button>
       {/* <Box>
         <Footer />
       </Box> */}
