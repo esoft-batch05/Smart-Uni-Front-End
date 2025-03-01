@@ -2,10 +2,11 @@ import React, { lazy, Suspense } from "react";
 import { Outlet, useRoutes } from "react-router-dom";
 import Layout from "../Layout/Nav-Bar/NavBar";
 import Home from "../Pages/Home/Home";
-import MainLayout from '../Layout/ResponsiveLayout/SideBar'
-import Dashboard from "../Pages/Dashboard/Dashboard";
+import Login from "../Pages/Login/Login";
 import Signup from "../Pages/Signup/Signup";
-import Signin from "../Pages/Signin/Signin";
+
+import MainLayout from "../Layout/ResponsiveLayout/SideBar";
+import Dashboard from "../Pages/Dashboard/Dashboard";
 
 function Router() {
   const routes = useRoutes([
@@ -20,8 +21,10 @@ function Router() {
       ),
       children: [{ path: "/", element: <Home /> }],
     },
+    { path: "/login", element: <Login /> },
+    { path: "/signup", element: <Signup /> },
 
-    //Main outlet
+    // Main Outlet
     {
       path: "/",
       element: (
@@ -31,16 +34,11 @@ function Router() {
           </Suspense>
         </MainLayout>
       ),
-      children: [{ path: "/dashboard", element: <Dashboard /> }, {path: "/projects", element: <Dashboard />}],
+      children: [
+        { path: "/dashboard", element: <Dashboard /> }, 
+        { path: "/projects", element: <Dashboard /> }, 
+      ],
     },
-    {
-      path: '/login',
-      element: <Signin />,
-    },
-    {
-      path: '/sign-up',
-      element: <Signup />,
-    }
   ]);
 
   return routes;
