@@ -5,7 +5,9 @@ import Home from "../Pages/Home/Home";
 import Login from "../Pages/Login/Login";
 import Signup from "../Pages/Signup/Signup";
 
-import MainLayout from "../Layout/ResponsiveLayout/SideBar";
+import LecturerLayout from "../Layout/ResponsiveLayout-lecturer/SideBar";
+import StudentLayout from "../Layout/ResponsiveLayout-student/SideBar";
+import AdminLayout from "../Layout/ResponsiveLayout-Admin/SideBar";
 import Dashboard from "../Pages/Dashboard/Dashboard";
 
 function Router() {
@@ -28,14 +30,42 @@ function Router() {
     {
       path: "/",
       element: (
-        <MainLayout>
+        <LecturerLayout>
           <Suspense>
             <Outlet />
           </Suspense>
-        </MainLayout>
+        </LecturerLayout>
       ),
       children: [
-        { path: "/dashboard", element: <Dashboard /> }, 
+        { path: "/lecturer-dashboard", element: <Dashboard /> }, 
+        { path: "/projects", element: <Dashboard /> }, 
+      ],
+    },
+    {
+      path: "/",
+      element: (
+        <StudentLayout>
+          <Suspense>
+            <Outlet />
+          </Suspense>
+        </StudentLayout>
+      ),
+      children: [
+        { path: "/student-dashboard", element: <Dashboard /> }, 
+        { path: "/projects", element: <Dashboard /> }, 
+      ],
+    },
+    {
+      path: "/",
+      element: (
+        <AdminLayout>
+          <Suspense>
+            <Outlet />
+          </Suspense>
+        </AdminLayout>
+      ),
+      children: [
+        { path: "/admin-dashboard", element: <Dashboard /> }, 
         { path: "/projects", element: <Dashboard /> }, 
       ],
     },

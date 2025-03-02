@@ -110,11 +110,11 @@ const LoginPage = () => {
           bgcolor: '#f5f5f5',
           borderRadius: 2
         }}>
-          <Typography variant="h4" component="h1" align="center" fontWeight="bold" mb={3}>
-            WELCOME
+          <Typography variant="h3" component="h1" align="start" fontWeight="bold" mb={3}>
+            Login
           </Typography>
           
-          <Typography variant="body2" align="center" mb={4} color="text.secondary">
+          <Typography variant="body2" align="start" mb={4} color="text.secondary">
             Log in to Discover Your Dream Course and University. Get
             Personalized Guidance and Expert Tips Installation!
           </Typography>
@@ -174,7 +174,7 @@ const LoginPage = () => {
               <Typography variant="body2" display="inline" color="text.secondary">
                 Don't have an account? 
               </Typography>
-              <Link href="#" variant="body2" sx={{ ml: 0.5, color: '#FF8C00' }}>
+              <Link href="signup" variant="body2" sx={{ ml: 0.5, color: '#FF8C00' }}>
                 Sign Up
               </Link>
             </Box>
