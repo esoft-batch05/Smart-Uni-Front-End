@@ -39,6 +39,9 @@ import {
   Menu as MenuIcon
 } from '@mui/icons-material';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { clearTokens } from '../../Reducers/authSlice';
+import { useDispatch } from 'react-redux';
+import { showAlert } from '../../Utils/alertUtils';
 
 // Define constants
 const DRAWER_WIDTH = 200;
@@ -140,11 +143,23 @@ const ImprovedLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  
+  const dispatch = useDispatch();
+
   // Update drawer state when screen size changes
   useEffect(() => {
     setOpen(!isMobile);
   }, [isMobile]);
+
+  const logOut = async () => {
+        try{
+          dispatch(clearTokens({}));
+          navigate("/login");
+          showAlert('success', 'Logout successful!');
+        }catch(error){
+          showAlert('error', 'Failed to logout!');
+        }
+        
+      };
 
   // Navigation menu items
   const menuItems = [
@@ -249,7 +264,7 @@ const ImprovedLayout = () => {
                 Admin
               </Typography>
             </Box>
-            <IconButton sx={{ ml: 'auto', color: 'white' }}>
+            <IconButton onClick={()=>{logOut()}} sx={{ ml: 'auto', color: 'white' }}>
               <LogoutIcon fontSize="small" />
             </IconButton>
           </>

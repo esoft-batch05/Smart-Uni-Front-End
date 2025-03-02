@@ -39,6 +39,9 @@ import {
   Menu as MenuIcon
 } from '@mui/icons-material';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { clearTokens } from '../../Reducers/authSlice';
+import { showAlert } from '../../Utils/alertUtils';
 
 // Define constants
 const DRAWER_WIDTH = 200;
@@ -146,6 +149,19 @@ const ImprovedLayout = () => {
     setOpen(!isMobile);
   }, [isMobile]);
 
+  const dispatch = useDispatch();
+
+  const logOut = async () => {
+      try{
+        dispatch(clearTokens({}));
+        navigate("/login");
+        showAlert('success', 'Logout successful!');
+      }catch(error){
+        showAlert('error', 'Failed to logout!');
+      }
+      
+    };
+
   // Navigation menu items
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
@@ -249,7 +265,7 @@ const ImprovedLayout = () => {
                 Admin
               </Typography>
             </Box>
-            <IconButton sx={{ ml: 'auto', color: 'white' }}>
+            <IconButton onClick={()=>{logOut()}} sx={{ ml: 'auto', color: 'white' }}>
               <LogoutIcon fontSize="small" />
             </IconButton>
           </>
