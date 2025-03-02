@@ -57,7 +57,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // If it's a 401 error, clear the tokens and redirect to login
       store.dispatch(clearTokens());
-      window.location.href = "/login";
+      // window.location.href = "/login";
     } else if (error.response?.status === 401 && !originalRequest._retry) {
       // Attempt to refresh token if it's not already in the retry process
       originalRequest._retry = true;
