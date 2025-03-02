@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import {
   Box,
@@ -21,7 +21,9 @@ import {
   TableRow,
   Chip,
   useMediaQuery,
-  useTheme
+  useTheme,
+  AppBar,
+  Toolbar
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -33,13 +35,14 @@ import {
   Settings as SettingsIcon,
   ChevronLeft as ChevronLeftIcon,
   Logout as LogoutIcon,
-  ChevronRight as ChevronRightIcon
+  ChevronRight as ChevronRightIcon,
+  Menu as MenuIcon
 } from '@mui/icons-material';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 
 // Define constants
 const DRAWER_WIDTH = 200;
-const COLLAPSED_WIDTH = 84;
+const COLLAPSED_WIDTH = 74;
 
 // Styled components
 const StyledDrawer = styled(Drawer, {
@@ -71,7 +74,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 const Main = styled('main', {
   shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
+})(({ theme, open, isMobile }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
   transition: theme.transitions.create('margin', {
@@ -79,7 +82,7 @@ const Main = styled('main', {
     duration: theme.transitions.duration.enteringScreen,
   }),
   marginLeft: 0,
-  ...(open && {
+  ...(open && !isMobile && {
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
@@ -118,46 +121,61 @@ const StyledListItemButton = styled(ListItemButton)(({ theme, active }) => ({
   },
 }));
 
-const StatsCard = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
-  borderRadius: theme.spacing(1),
-  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
+const StyledAppBar = styled(AppBar)(({ theme, open, isMobile }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+  backgroundColor: 'white',
+  color: '#333',
+  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+  display: isMobile ? 'block' : 'none',
+  transition: theme.transitions.create(['margin', 'width'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
 }));
-
-
 
 const ImprovedLayout = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [open, setOpen] = useState(!isMobile);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   
+  // Update drawer state when screen size changes
+  useEffect(() => {
+    setOpen(!isMobile);
+  }, [isMobile]);
+
   // Navigation menu items
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { text: 'Projects', icon: <ProjectsIcon />, path: '/projects' },
-    { text: 'Messages', icon: <MessagesIcon />, path: '/messages' },
-    { text: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics' },
+    { text: 'Events', icon: <ProjectsIcon />, path: '/projects' },
+    { text: 'Classes', icon: <MessagesIcon />, path: '/messages' },
+    { text: 'Library', icon: <MessagesIcon />, path: '/messages' },
+    { text: 'Resources', icon: <AnalyticsIcon />, path: '/analytics' },
   ];
 
   const shortcutsItems = [
     { text: 'Tasks', icon: <TasksIcon />, path: '/tasks' },
-    { text: 'Help', icon: <HelpIcon />, path: '/help' },
+    { text: 'Inbox', icon: <MessagesIcon />, path: '/help' },
+    { text: 'Shop', icon: <MessagesIcon />, path: '/help' },
     { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
   ];
 
   const handleDrawerToggle = () => {
-    setOpen(!open);
+    if (isMobile) {
+      setMobileOpen(!mobileOpen);
+    } else {
+      setOpen(!open);
+    }
   };
 
   // Function to handle navigation when clicking on sidebar items
   const handleNavigation = (path) => {
     navigate(path);
+    if (isMobile) {
+      setMobileOpen(false);
+    }
   };
 
   // Check if a menu item is active
@@ -172,15 +190,17 @@ const ImprovedLayout = () => {
       <DrawerHeader>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 1 }}>
           <Avatar sx={{ bgcolor: 'white', color: '#ff8300', width: 30, height: 30 }}>U</Avatar>
-          {open && (
+          {(open || isMobile) && (
             <Typography variant="h6" noWrap component="div">
               Smart UNI
             </Typography>
           )}
         </Box>
-        <IconButton onClick={handleDrawerToggle} sx={{ color: 'white' }}>
-          {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-        </IconButton>
+        {!isMobile && (
+          <IconButton onClick={handleDrawerToggle} sx={{ color: 'white' }}>
+            {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          </IconButton>
+        )}
       </DrawerHeader>
 
       <List>
@@ -193,13 +213,13 @@ const ImprovedLayout = () => {
               <ListItemIcon sx={{ minWidth: 40, color: 'white' }}>
                 {item.icon}
               </ListItemIcon>
-              {open && <ListItemText primary={item.text} />}
+              {(open || isMobile) && <ListItemText primary={item.text} />}
             </StyledListItemButton>
           </ListItem>
         ))}
       </List>
       
-      {open && <SectionTitle>SHORTCUTS</SectionTitle>}
+      {(open || isMobile) && <SectionTitle>SHORTCUTS</SectionTitle>}
       
       <List>
         {shortcutsItems.map((item) => (
@@ -211,14 +231,14 @@ const ImprovedLayout = () => {
               <ListItemIcon sx={{ minWidth: 40, color: 'white' }}>
                 {item.icon}
               </ListItemIcon>
-              {open && <ListItemText primary={item.text} />}
+              {(open || isMobile) && <ListItemText primary={item.text} />}
             </StyledListItemButton>
           </ListItem>
         ))}
       </List>
 
       <ProfileSection>
-        {open ? (
+        {(open || isMobile) ? (
           <>
             <Avatar sx={{ width: 36, height: 36, mr: 2 }}>JD</Avatar>
             <Box>
@@ -244,15 +264,35 @@ const ImprovedLayout = () => {
 
   return (
     <Box sx={{ display: 'flex' }}>
+      {isMobile && (
+        <StyledAppBar position="fixed" open={mobileOpen} isMobile={isMobile}>
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2 }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" noWrap component="div">
+              Smart UNI
+            </Typography>
+          </Toolbar>
+        </StyledAppBar>
+      )}
+      
       <StyledDrawer
         variant={isMobile ? "temporary" : "permanent"}
-        open={open}
+        open={isMobile ? mobileOpen : open}
         onClose={isMobile ? handleDrawerToggle : undefined}
       >
         {drawer}
       </StyledDrawer>
       
-      <Main open={open}>
+      <Main open={open} isMobile={isMobile}>
+        {isMobile && <Box sx={{ height: theme.spacing(7) }} />}
         {<Outlet />}
       </Main>
     </Box>
