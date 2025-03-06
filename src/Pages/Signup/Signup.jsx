@@ -25,6 +25,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import Image from "../../assets/Images/Group 1000002553.jpg";
 import UserServices from '../../Services/UserService';
 import { showAlert } from "../../Utils/alertUtils";
+import { showLoading, hideLoading } from '../../Utils/loadingUtils';
 import { useNavigate } from "react-router-dom";
 
 
@@ -41,7 +42,7 @@ const SignUp = () => {
       name: "",
       email: "",
       password: "",
-      phone: "",
+      phoneNumber: "",
       dateOfBirth: null,
       role: "",
     },
@@ -50,21 +51,24 @@ const SignUp = () => {
     const navigate = useNavigate();
   
 
-  const login = async (data) => {
+  const register = async (data) => {
+    showLoading('Creating account...');
     try{
       const response = await UserServices.userRegister(data);
       console.log(response);
-      showAlert('success', 'Registration successful!');
       navigate('/login');
+      showAlert('success', 'Registration successful!');
     }catch(err){
       showAlert('error', 'Registration Failed!');
       console.log(err);
+    }finally{
+      hideLoading();
     }
   }
 
   const onSubmit = (data) => {
     console.log(data);
-    login(data);
+    register(data);
   };
 
   return (
@@ -161,7 +165,7 @@ const SignUp = () => {
                   />
 
                   <Controller
-                    name="phone"
+                    name="phoneNumber"
                     control={control}
                     rules={{ required: "Phone number is required" }}
                     render={({ field }) => (
@@ -207,7 +211,7 @@ const SignUp = () => {
                   </Button>
 
                   <Typography variant="body2" textAlign="center" mt={2}>
-                    Already have an account? <Link href="#" sx={{ color: "#FF8C00" }}>Sign In</Link>
+                    Already have an account? <Link href="/login" sx={{ color: "#FF8C00" }}>Sign In</Link>
                   </Typography>
                 </form>
               </CardContent>

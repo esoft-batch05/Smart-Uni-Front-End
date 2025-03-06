@@ -12,6 +12,7 @@ import {
 import Image from '../../assets/Images/Group 1000002552.png'
 import UserServices from '../../Services/UserService';
 import { showAlert } from '../../Utils/alertUtils';
+import { showLoading, hideLoading } from '../../Utils/loadingUtils';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setTokens } from "../../Reducers/authSlice";
@@ -29,6 +30,7 @@ const LoginPage = () => {
 
 
   const login = async (email, password) => {
+    showLoading('Login...');
     try {
       const response = await UserServices.userLogin({
         email: email,
@@ -54,6 +56,8 @@ const LoginPage = () => {
     } catch (error) {
       console.error("Failed to fetch orders:", error.message);
       showAlert('error', 'Login Failed!');
+    }finally{
+      hideLoading();
     }
   };
 
