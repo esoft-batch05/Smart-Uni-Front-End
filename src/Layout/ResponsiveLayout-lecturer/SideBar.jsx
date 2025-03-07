@@ -42,6 +42,11 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { clearTokens } from '../../Reducers/authSlice';
 import { showAlert } from '../../Utils/alertUtils';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import SchoolIcon from '@mui/icons-material/School';
+import EventIcon from '@mui/icons-material/Event';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
 
 // Define constants
 const DRAWER_WIDTH = 200;
@@ -164,17 +169,17 @@ const ImprovedLayout = () => {
 
   // Navigation menu items
   const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-    { text: 'Events', icon: <ProjectsIcon />, path: '/projects' },
-    { text: 'Classes', icon: <MessagesIcon />, path: '/messages' },
-    { text: 'Library', icon: <MessagesIcon />, path: '/messages' },
-    { text: 'Resources', icon: <AnalyticsIcon />, path: '/analytics' },
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/lecturer-dashboard' },
+    { text: 'Events', icon: <EventIcon />, path: '/lecturer-events' },
+    { text: 'Classes', icon: <SchoolIcon />, path: '/lecturer-classes' },
+    { text: 'Library', icon: <LibraryBooksIcon />, path: '/lecturer-library' },
+    { text: 'Resources', icon: <CameraAltIcon />, path: '/lecturer-resources' },
   ];
 
   const shortcutsItems = [
     { text: 'Tasks', icon: <TasksIcon />, path: '/tasks' },
     { text: 'Inbox', icon: <MessagesIcon />, path: '/help' },
-    { text: 'Shop', icon: <MessagesIcon />, path: '/help' },
+    { text: 'Shop', icon: <ShoppingCartIcon />, path: '/help' },
     { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
   ];
 

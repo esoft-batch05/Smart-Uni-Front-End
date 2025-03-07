@@ -9,6 +9,7 @@ import LecturerLayout from "../Layout/ResponsiveLayout-lecturer/SideBar";
 import StudentLayout from "../Layout/ResponsiveLayout-student/SideBar";
 import AdminLayout from "../Layout/ResponsiveLayout-Admin/SideBar";
 import Dashboard from "../Pages/Dashboard/Dashboard";
+import EventCard from "../Pages/Event/Event";
 
 function Router() {
   const routes = useRoutes([
@@ -71,7 +72,10 @@ function Router() {
       ),
       children: [
         { path: "/admin-dashboard", element: <Dashboard /> }, 
-        { path: "/projects", element: <Dashboard /> }, 
+        { path: "/admin-events", element: <EventCard /> }, 
+        { path: "/admin-classes", element: <Dashboard /> }, 
+        { path: "/admin-library", element: <Dashboard /> }, 
+        { path: "/admin-resources", element: <Dashboard /> }, 
       ],
     },
   ]);
