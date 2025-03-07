@@ -121,6 +121,20 @@ const EventCard = ({ event }) => {
           </Button>
           <Button
             variant="outlined"
+            color="warning"
+            onClick={onUpdate}
+            startIcon={<Update />}
+            sx={{
+              marginRight: 1,
+              "@media (max-width: 600px)": {
+                fontSize: "0.8rem", // Adjust font size on mobile
+              },
+            }}
+          >
+            View Attendes
+          </Button>
+          <Button
+            variant="outlined"
             color="error"
             onClick={onDelete}
             startIcon={<Delete />}
