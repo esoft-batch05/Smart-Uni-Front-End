@@ -43,6 +43,7 @@ const SignUp = () => {
       email: "",
       password: "",
       phoneNumber: "",
+      address: "Colombo",
       dateOfBirth: null,
       role: "",
     },
