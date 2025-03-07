@@ -39,7 +39,7 @@ function Router() {
       ),
       children: [
         { path: "/lecturer-dashboard", element: <Dashboard /> }, 
-        { path: "/lecturer-events", element: <Dashboard /> }, 
+        { path: "/lecturer-events", element: <EventCard /> }, 
         { path: "/lecturer-classes", element: <Dashboard /> }, 
         { path: "/lecturer-library", element: <Dashboard /> }, 
         { path: "/lecturer-resources", element: <Dashboard /> }, 
@@ -48,15 +48,15 @@ function Router() {
     {
       path: "/",
       element: (
-        <StudentLayout>
+        <LecturerLayout>
           <Suspense>
             <Outlet />
           </Suspense>
-        </StudentLayout>
+        </LecturerLayout>
       ),
       children: [
         { path: "/student-dashboard", element: <Dashboard /> }, 
-        { path: "/student-events", element: <Dashboard /> }, 
+        { path: "/student-events", element: <EventCard /> }, 
         { path: "/student-classes", element: <Dashboard /> }, 
         { path: "/student-library", element: <Dashboard /> }, 
         { path: "/student-resources", element: <Dashboard /> },       ],
@@ -64,11 +64,11 @@ function Router() {
     {
       path: "/",
       element: (
-        <AdminLayout>
+        <LecturerLayout>
           <Suspense>
             <Outlet />
           </Suspense>
-        </AdminLayout>
+        </LecturerLayout>
       ),
       children: [
         { path: "/admin-dashboard", element: <Dashboard /> }, 

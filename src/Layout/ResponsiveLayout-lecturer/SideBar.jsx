@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { styled } from '@mui/material/styles';
+import React, { useState, useEffect } from "react";
+import { styled } from "@mui/material/styles";
 import {
   Box,
   Drawer,
@@ -23,8 +23,8 @@ import {
   useMediaQuery,
   useTheme,
   AppBar,
-  Toolbar
-} from '@mui/material';
+  Toolbar,
+} from "@mui/material";
 import {
   Dashboard as DashboardIcon,
   Folder as ProjectsIcon,
@@ -36,17 +36,17 @@ import {
   ChevronLeft as ChevronLeftIcon,
   Logout as LogoutIcon,
   ChevronRight as ChevronRightIcon,
-  Menu as MenuIcon
-} from '@mui/icons-material';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { clearTokens } from '../../Reducers/authSlice';
-import { showAlert } from '../../Utils/alertUtils';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
-import SchoolIcon from '@mui/icons-material/School';
-import EventIcon from '@mui/icons-material/Event';
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
+  Menu as MenuIcon,
+} from "@mui/icons-material";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { clearTokens } from "../../Reducers/authSlice";
+import { showAlert } from "../../Utils/alertUtils";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import SchoolIcon from "@mui/icons-material/School";
+import EventIcon from "@mui/icons-material/Event";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
 
 // Define constants
 const DRAWER_WIDTH = 200;
@@ -54,88 +54,89 @@ const COLLAPSED_WIDTH = 74;
 
 // Styled components
 const StyledDrawer = styled(Drawer, {
-  shouldForwardProp: (prop) => prop !== 'open',
+  shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
   width: open ? DRAWER_WIDTH : COLLAPSED_WIDTH,
   flexShrink: 0,
-  '& .MuiDrawer-paper': {
+  "& .MuiDrawer-paper": {
     width: open ? DRAWER_WIDTH : COLLAPSED_WIDTH,
-    boxSizing: 'border-box',
-    backgroundColor: '#ff8300',
-    color: 'white',
-    borderRight: 'none',
-    transition: theme.transitions.create('width', {
+    boxSizing: "border-box",
+    backgroundColor: "#ff8300",
+    color: "white",
+    borderRight: "none",
+    transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    overflowX: 'hidden',
+    overflowX: "hidden",
   },
 }));
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
+const DrawerHeader = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
-  justifyContent: 'space-between',
+  justifyContent: "space-between",
 }));
 
-const Main = styled('main', {
-  shouldForwardProp: (prop) => prop !== 'open',
+const Main = styled("main", {
+  shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open, isMobile }) => ({
   flexGrow: 1,
   padding: theme.spacing(3),
-  transition: theme.transitions.create('margin', {
+  transition: theme.transitions.create("margin", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen,
   }),
   marginLeft: 0,
-  ...(open && !isMobile && {
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
+  ...(open &&
+    !isMobile && {
+      transition: theme.transitions.create("margin", {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      marginLeft: 0,
     }),
-    marginLeft: 0,
-  }),
 }));
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
   fontSize: 12,
-  fontWeight: 'bold',
-  textTransform: 'uppercase',
-  color: 'rgba(255, 255, 255, 0.7)',
+  fontWeight: "bold",
+  textTransform: "uppercase",
+  color: "rgba(255, 255, 255, 0.7)",
   padding: theme.spacing(1, 2),
   marginTop: theme.spacing(1),
   marginBottom: theme.spacing(0.5),
 }));
 
-const ProfileSection = styled('div')(({ theme }) => ({
-  position: 'absolute',
+const ProfileSection = styled("div")(({ theme }) => ({
+  position: "absolute",
   bottom: 0,
-  width: '100%',
+  width: "100%",
   padding: theme.spacing(2),
-  display: 'flex',
-  alignItems: 'center',
-  backgroundColor: 'rgba(0, 0, 0, 0.1)',
-  color: 'white',
+  display: "flex",
+  alignItems: "center",
+  backgroundColor: "rgba(0, 0, 0, 0.1)",
+  color: "white",
 }));
 
 const StyledListItemButton = styled(ListItemButton)(({ theme, active }) => ({
-  borderRadius: '4px',
-  margin: '4px 8px',
-  backgroundColor: active ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
-  '&:hover': {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  borderRadius: "4px",
+  margin: "4px 8px",
+  backgroundColor: active ? "rgba(255, 255, 255, 0.2)" : "transparent",
+  "&:hover": {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
 }));
 
 const StyledAppBar = styled(AppBar)(({ theme, open, isMobile }) => ({
   zIndex: theme.zIndex.drawer + 1,
-  backgroundColor: 'white',
-  color: '#333',
-  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-  display: isMobile ? 'block' : 'none',
-  transition: theme.transitions.create(['margin', 'width'], {
+  backgroundColor: "white",
+  color: "#333",
+  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+  display: isMobile ? "block" : "none",
+  transition: theme.transitions.create(["margin", "width"], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
@@ -143,12 +144,14 @@ const StyledAppBar = styled(AppBar)(({ theme, open, isMobile }) => ({
 
 const ImprovedLayout = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [open, setOpen] = useState(!isMobile);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  
+  const user = useSelector((state) => state.user);
+  const userRole = useSelector((state) => state.user?.role);
+
   // Update drawer state when screen size changes
   useEffect(() => {
     setOpen(!isMobile);
@@ -157,30 +160,29 @@ const ImprovedLayout = () => {
   const dispatch = useDispatch();
 
   const logOut = async () => {
-      try{
-        dispatch(clearTokens({}));
-        navigate("/login");
-        showAlert('success', 'Logout successful!');
-      }catch(error){
-        showAlert('error', 'Failed to logout!');
-      }
-      
-    };
+    try {
+      dispatch(clearTokens({}));
+      navigate("/login");
+      showAlert("success", "Logout successful!");
+    } catch (error) {
+      showAlert("error", "Failed to logout!");
+    }
+  };
 
   // Navigation menu items
   const menuItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, path: '/lecturer-dashboard' },
-    { text: 'Events', icon: <EventIcon />, path: '/lecturer-events' },
-    { text: 'Classes', icon: <SchoolIcon />, path: '/lecturer-classes' },
-    { text: 'Library', icon: <LibraryBooksIcon />, path: '/lecturer-library' },
-    { text: 'Resources', icon: <CameraAltIcon />, path: '/lecturer-resources' },
+    { text: "Dashboard", icon: <DashboardIcon />, path: `/${userRole}-dashboard` },
+    { text: "Events", icon: <EventIcon />, path: `/${userRole}-events` },
+    { text: "Classes", icon: <SchoolIcon />, path: `/${userRole}-classes` },
+    { text: "Library", icon: <LibraryBooksIcon />, path: `/${userRole}-library` },
+    { text: "Resources", icon: <CameraAltIcon />, path: `/${userRole}-resources` },
   ];
 
   const shortcutsItems = [
-    { text: 'Tasks', icon: <TasksIcon />, path: '/tasks' },
-    { text: 'Inbox', icon: <MessagesIcon />, path: '/help' },
-    { text: 'Shop', icon: <ShoppingCartIcon />, path: '/help' },
-    { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
+    { text: "Tasks", icon: <TasksIcon />, path: "/tasks" },
+    { text: "Inbox", icon: <MessagesIcon />, path: "/help" },
+    { text: "Shop", icon: <ShoppingCartIcon />, path: "/help" },
+    { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
   ];
 
   const handleDrawerToggle = () => {
@@ -201,16 +203,22 @@ const ImprovedLayout = () => {
 
   // Check if a menu item is active
   const isActive = (path) => {
-    return location.pathname === path || 
-           (path !== '/' && location.pathname.startsWith(path));
+    return (
+      location.pathname === path ||
+      (path !== "/" && location.pathname.startsWith(path))
+    );
   };
 
   // Drawer content
   const drawer = (
     <>
       <DrawerHeader>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 1 }}>
-          <Avatar sx={{ bgcolor: 'white', color: '#ff8300', width: 30, height: 30 }}>U</Avatar>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, ml: 1 }}>
+          <Avatar
+            sx={{ bgcolor: "white", color: "#ff8300", width: 30, height: 30 }}
+          >
+            U
+          </Avatar>
           {(open || isMobile) && (
             <Typography variant="h6" noWrap component="div">
               Smart UNI
@@ -218,7 +226,7 @@ const ImprovedLayout = () => {
           )}
         </Box>
         {!isMobile && (
-          <IconButton onClick={handleDrawerToggle} sx={{ color: 'white' }}>
+          <IconButton onClick={handleDrawerToggle} sx={{ color: "white" }}>
             {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
         )}
@@ -227,11 +235,11 @@ const ImprovedLayout = () => {
       <List>
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
-            <StyledListItemButton 
+            <StyledListItemButton
               active={isActive(item.path) ? 1 : 0}
               onClick={() => handleNavigation(item.path)}
             >
-              <ListItemIcon sx={{ minWidth: 40, color: 'white' }}>
+              <ListItemIcon sx={{ minWidth: 40, color: "white" }}>
                 {item.icon}
               </ListItemIcon>
               {(open || isMobile) && <ListItemText primary={item.text} />}
@@ -239,17 +247,17 @@ const ImprovedLayout = () => {
           </ListItem>
         ))}
       </List>
-      
+
       {(open || isMobile) && <SectionTitle>SHORTCUTS</SectionTitle>}
-      
+
       <List>
         {shortcutsItems.map((item) => (
           <ListItem key={item.text} disablePadding>
-            <StyledListItemButton 
+            <StyledListItemButton
               active={isActive(item.path) ? 1 : 0}
               onClick={() => handleNavigation(item.path)}
             >
-              <ListItemIcon sx={{ minWidth: 40, color: 'white' }}>
+              <ListItemIcon sx={{ minWidth: 40, color: "white" }}>
                 {item.icon}
               </ListItemIcon>
               {(open || isMobile) && <ListItemText primary={item.text} />}
@@ -259,24 +267,49 @@ const ImprovedLayout = () => {
       </List>
 
       <ProfileSection>
-        {(open || isMobile) ? (
+        {open || isMobile ? (
           <>
-            <Avatar sx={{ width: 36, height: 36, mr: 2 }}>JD</Avatar>
+            <Avatar sx={{ width: 36, height: 36, mr: 2 }}>
+              <Avatar
+                sx={{ width: 36, height: 36 }}
+                src={user?.image || undefined}
+              >
+                {!user?.image &&
+                  user?.name?.split(" ")[0]?.charAt(0).toUpperCase()}
+              </Avatar>
+            </Avatar>
             <Box>
-              <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                John Doe
+              <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
+                {user?.name?.split(" ")[0].charAt(0).toUpperCase() +
+                  user?.name?.split(" ")[0].slice(1).toLowerCase()}
               </Typography>
-              <Typography variant="caption">
-                Admin
+              <Typography>
+                {user?.role?.split(" ")[0].charAt(0).toUpperCase() +
+                  user?.role?.split(" ")[0].slice(1).toLowerCase()}
               </Typography>
             </Box>
-            <IconButton onClick={()=>{logOut()}} sx={{ ml: 'auto', color: 'white' }}>
+            <IconButton
+              onClick={() => {
+                logOut();
+              }}
+              sx={{ ml: "auto", color: "white" }}
+            >
               <LogoutIcon fontSize="small" />
             </IconButton>
           </>
         ) : (
-          <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-            <Avatar sx={{ width: 36, height: 36 }}>JD</Avatar>
+          <Box
+            sx={{ display: "flex", justifyContent: "center", width: "100%" }}
+          >
+            <Avatar sx={{ width: 36, height: 36 }}>
+              <Avatar
+                sx={{ width: 36, height: 36 }}
+                src={user?.image || undefined}
+              >
+                {!user?.image &&
+                  user?.name?.split(" ")[0]?.charAt(0).toUpperCase()}
+              </Avatar>
+            </Avatar>
           </Box>
         )}
       </ProfileSection>
@@ -284,7 +317,7 @@ const ImprovedLayout = () => {
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       {isMobile && (
         <StyledAppBar position="fixed" open={mobileOpen} isMobile={isMobile}>
           <Toolbar>
@@ -303,7 +336,7 @@ const ImprovedLayout = () => {
           </Toolbar>
         </StyledAppBar>
       )}
-      
+
       <StyledDrawer
         variant={isMobile ? "temporary" : "permanent"}
         open={isMobile ? mobileOpen : open}
@@ -311,7 +344,7 @@ const ImprovedLayout = () => {
       >
         {drawer}
       </StyledDrawer>
-      
+
       <Main open={open} isMobile={isMobile}>
         {isMobile && <Box sx={{ height: theme.spacing(7) }} />}
         {<Outlet />}
