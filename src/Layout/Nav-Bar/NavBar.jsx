@@ -39,10 +39,10 @@ const NavBar = ({ children }) => {
 
           {/* Buttons on the right side */}
           <Box sx={{ display: "flex", gap: 2 }}>
-            <Button variant="outlined" color="primary">
+            <Button variant="outlined" color="primary" onClick={()=> navigate('/login')} >
               Login
             </Button>
-            <Button variant="contained" color="primary" onClick={()=> navigate('dashboard')}>
+            <Button variant="contained" color="primary" onClick={()=> navigate('/signup')}>
               Signup
             </Button>
           </Box>

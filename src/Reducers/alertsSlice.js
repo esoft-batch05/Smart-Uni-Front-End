@@ -10,7 +10,7 @@ export const alertsSlice = createSlice({
   initialState,
   reducers: {
     addAlert: (state, action) => {
-      const { type, message, duration = 10000 } = action.payload;
+      const { type, message, duration = 5000 } = action.payload;
       state.alerts.push({
         id: state.nextId,
         type,

@@ -38,7 +38,10 @@ function Router() {
       ),
       children: [
         { path: "/lecturer-dashboard", element: <Dashboard /> }, 
-        { path: "/projects", element: <Dashboard /> }, 
+        { path: "/lecturer-events", element: <Dashboard /> }, 
+        { path: "/lecturer-classes", element: <Dashboard /> }, 
+        { path: "/lecturer-library", element: <Dashboard /> }, 
+        { path: "/lecturer-resources", element: <Dashboard /> }, 
       ],
     },
     {
@@ -52,8 +55,10 @@ function Router() {
       ),
       children: [
         { path: "/student-dashboard", element: <Dashboard /> }, 
-        { path: "/projects", element: <Dashboard /> }, 
-      ],
+        { path: "/student-events", element: <Dashboard /> }, 
+        { path: "/student-classes", element: <Dashboard /> }, 
+        { path: "/student-library", element: <Dashboard /> }, 
+        { path: "/student-resources", element: <Dashboard /> },       ],
     },
     {
       path: "/",

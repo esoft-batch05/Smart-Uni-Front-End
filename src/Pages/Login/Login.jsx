@@ -16,6 +16,7 @@ import { showLoading, hideLoading } from '../../Utils/loadingUtils';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { setTokens } from "../../Reducers/authSlice";
+import { updateUser } from '../../Reducers/userSlice';
 
 
 const LoginPage = () => {
@@ -41,6 +42,16 @@ const LoginPage = () => {
         setTokens({
           accessToken: await response.data.token,
           refreshToken: await response.data.refreshToken,
+        })
+      );
+      dispatch(
+        updateUser({
+          _id: await response.data._id,
+          name: await response.data.name,
+          email: await response.data.email,
+          role: await response.data.role,
+          phone: await response.data.phone,
+          dob: await response.data.dob,
         })
       );
       role = response?.data?.role;
