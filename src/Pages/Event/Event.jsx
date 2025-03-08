@@ -81,6 +81,7 @@ function Event() {
       const response = await EventServices.approveEvent(id);
       showAlert("success", "Event is Approved!");
       pendingEvents();
+      fetchEvents();
     } catch (error) {
       showAlert("error", "Something went wrong!");
     } finally {
@@ -164,11 +165,12 @@ function Event() {
     showLoading("Event is Creating...");
     try {
       const response = await EventServices.createEvent(newEvent);
-      if (response?.status === "success") {
+      if (response?.data?.status === "approved") {
         showAlert("success", "Event Created!");
         setOpenModal(false);
-      } else {
-        showAlert("error", "Something went wrong!");
+      } else if (response?.data?.status === "pending") {
+        showAlert("success", "Your event is under review and approval is pending. It will be approved within 24 hours after review.");
+        setOpenModal(false);
       }
     } catch (error) {
       console.log(error);
