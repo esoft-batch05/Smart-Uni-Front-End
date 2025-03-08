@@ -13,24 +13,85 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Grid,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  ListItem,
+  List,
+  ListItemText,
+  IconButton,
 } from "@mui/material";
 import { EventNote, Update, Delete } from "@mui/icons-material";
 import { useSelector } from "react-redux"; // Import useSelector to access the Redux store
 import EventServices from "../../Services/EventService";
 import { hideLoading, showLoading } from "../../Utils/loadingUtils";
 import { showAlert } from "../../Utils/alertUtils";
+import { Email, Message, Chat } from "@mui/icons-material";
 
 const EventCard = ({ event, onEventDeleted }) => {
   const { name, date, location, image, _id } = event;
   const userRole = useSelector((state) => state.user?.role);
+  const userId = useSelector((state) => state.user?._id);
 
-  // State to handle modal visibility
   const [openModal, setOpenModal] = useState(false);
-  const [eventToDelete, setEventToDelete] = useState(null); // Track event to delete
+  const [openUpdateModal, setOpenUpdateModal] = useState(false);
+  const [participants, setParticipants] = useState([event?.attendees]);
+  const [eventToDelete, setEventToDelete] = useState(null);
+  const [openAttendeesModal, setOpenAttendeesModal] = useState(false);
+  const [attendees, setAttendees] = useState([
+    { _id: "1", name: "John Doe", email: "john@example.com" },
+    { _id: "2", name: "Jane Smith", email: "jane@example.com" },
+  ]);
+
+  const handleAttendeesClose = () => {
+    setOpenAttendeesModal(false);
+  };
+
+  const handleAttendeesOpen = () => {
+    setOpenAttendeesModal(true);
+  };
+
+  const formatDateTimeLocal = (isoString) => {
+    if (!isoString) return "";
+    const date = new Date(isoString);
+    return date.toISOString().slice(0, 16);
+  };
+
+  const [newEvent, setNewEvent] = useState({
+    name: event?.name,
+    description: event?.description,
+    date: formatDateTimeLocal(event?.date),
+    eventType: event?.eventType,
+    image: event?.image,
+    ticketPrice: "",
+    location: event?.location,
+    organizer: event?.organizer,
+    role: userRole,
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewEvent((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleDeleteClick = (id) => {
     setEventToDelete(id);
     setOpenModal(true); // Open confirmation modal
+  };
+
+  const handleModalOpen = () => setOpenUpdateModal(true);
+  const handleModalClose = () => setOpenUpdateModal(false);
+
+  const isUserAttended = event.attendees.some(
+    (attendee) => attendee._id === userId
+  );
+
+  const attend = {
+    eventId: _id,
+    userId: userId,
   };
 
   const deleteEvent = async () => {
@@ -41,6 +102,73 @@ const EventCard = ({ event, onEventDeleted }) => {
       showAlert("success", "Event is Deleted!");
       onEventDeleted();
       setOpenModal(false); // Close modal after delete
+    } catch (error) {
+      showAlert("error", "Something went wrong!");
+    } finally {
+      hideLoading();
+    }
+  };
+
+  const handleBannerUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/file/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Failed to upload image");
+
+      const data = await response.json();
+      console.log("Upload response:", data);
+
+      setNewEvent((prev) => {
+        const updatedEvent = { ...prev, image: data.data.filename };
+        console.log("Updated newEvent:", updatedEvent); // Now correctly logs new state
+        return updatedEvent;
+      });
+    } catch (error) {
+      console.error("Upload failed:", error);
+    }
+  };
+
+  const handleFormSubmit = async () => {
+    showLoading("Event is Updating...");
+    try {
+      const response = await EventServices.updateEvent(event?._id, newEvent);
+      showAlert("success", "Event Updated!");
+      onEventDeleted();
+      setOpenUpdateModal(false);
+    } catch (error) {
+      showAlert("error", "Something went wrong!");
+    } finally {
+      hideLoading();
+    }
+  };
+
+  const attendEvent = async (data) => {
+    showLoading("Attending...");
+    try {
+      const response = await EventServices.attendEvent(data);
+      showAlert("success", "Attended to Event!");
+      onEventDeleted();
+    } catch (error) {
+      showAlert("error", "Something went wrong!");
+    } finally {
+      hideLoading();
+    }
+  };
+  const unAttendEvent = async (eventId, userId) => {
+    showLoading("Attending...");
+    try {
+      const response = await EventServices.unAttendEvent(eventId,userId );
+      showAlert("success", "Unattended to Event!");
+      onEventDeleted();
     } catch (error) {
       showAlert("error", "Something went wrong!");
     } finally {
@@ -113,12 +241,12 @@ const EventCard = ({ event, onEventDeleted }) => {
             },
           }}
         >
-          {/* <AvatarGroup max={4}> */}
-          {/* {participants.map((src, index) => ( */}
-          {/* <Avatar key={index} src={src} /> */}
-          {/* ))} */}
-          {/* </AvatarGroup> */}
-          {/* <Rating value={rating} precision={0.5} readOnly size="small" /> */}
+          <AvatarGroup max={4}>
+            {participants.map((src, index) => (
+              <Avatar key={index} src={src} />
+            ))}
+          </AvatarGroup>
+          <Rating value={4} precision={0.5} readOnly size="small" />
         </Box>
       </Box>
 
@@ -147,7 +275,15 @@ const EventCard = ({ event, onEventDeleted }) => {
           <Button
             variant="contained"
             color="primary"
+            // disabled={isUserAttended}
             startIcon={<EventNote />}
+            onClick={() => {
+              if (isUserAttended) {
+                unAttendEvent(event._id, { userId: userId });
+              } else {
+                attendEvent(attend);
+              }
+            }}
             sx={{
               marginRight: 1,
               "@media (max-width: 600px)": {
@@ -155,7 +291,8 @@ const EventCard = ({ event, onEventDeleted }) => {
               },
             }}
           >
-            Attend
+          {isUserAttended ? "Unattend" : "Attend"}
+
           </Button>
           {userRole === "admin" && (
             <>
@@ -163,6 +300,7 @@ const EventCard = ({ event, onEventDeleted }) => {
                 variant="outlined"
                 color="warning"
                 startIcon={<Update />}
+                onClick={handleModalOpen}
                 sx={{
                   marginRight: 1,
                   "@media (max-width: 600px)": {
@@ -176,6 +314,7 @@ const EventCard = ({ event, onEventDeleted }) => {
                 variant="outlined"
                 color="warning"
                 startIcon={<Update />}
+                onClick={handleAttendeesOpen}
                 sx={{
                   marginRight: 1,
                   "@media (max-width: 600px)": {
@@ -202,6 +341,186 @@ const EventCard = ({ event, onEventDeleted }) => {
           )}
         </Box>
       </CardContent>
+
+      <Dialog open={openUpdateModal} onClose={handleModalClose}>
+        <DialogTitle>Create Event</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} p={2}>
+            <Grid item xs={12}>
+              <TextField
+                label="Event Name"
+                variant="outlined"
+                fullWidth
+                size="small"
+                name="name"
+                value={newEvent.name}
+                onChange={handleInputChange}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                label="Description"
+                variant="outlined"
+                fullWidth
+                size="small"
+                name="description"
+                value={newEvent.description}
+                onChange={handleInputChange}
+                multiline
+                rows={3}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                variant="outlined"
+                type="datetime-local"
+                fullWidth
+                size="small"
+                name="date"
+                value={newEvent.date}
+                onChange={handleInputChange}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Event Type</InputLabel>
+                <Select
+                  value={newEvent.eventType}
+                  onChange={handleInputChange}
+                  label="Event Type"
+                  name="eventType"
+                >
+                  <MenuItem value="free">Free</MenuItem>
+                  <MenuItem value="ticket">Ticket</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            {newEvent.eventType === "ticket" && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Ticket Price (LKR)"
+                  variant="outlined"
+                  fullWidth
+                  size="small"
+                  name="ticketPrice"
+                  value={newEvent.ticketPrice}
+                  onChange={handleInputChange}
+                  type="number"
+                />
+              </Grid>
+            )}
+
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Location"
+                variant="outlined"
+                fullWidth
+                size="small"
+                name="location"
+                value={newEvent.location}
+                onChange={handleInputChange}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <input
+                accept="image/*"
+                type="file"
+                id="upload-banner"
+                style={{ display: "none" }}
+                onChange={handleBannerUpload}
+              />
+              <label htmlFor="upload-banner">
+                <Button
+                  variant="outlined"
+                  component="span"
+                  fullWidth
+                  size="small"
+                  color="primary"
+                >
+                  Upload Banner
+                </Button>
+              </label>
+              {newEvent.image && (
+                <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                  {newEvent.image}
+                </Typography>
+              )}
+            </Grid>
+
+            <Grid item xs={12}>
+              <TextField
+                label="Organizer"
+                variant="outlined"
+                fullWidth
+                size="small"
+                name="organizer"
+                value={newEvent.organizer}
+                onChange={handleInputChange}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={handleModalClose}
+            variant="outlined"
+            color="secondary"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleFormSubmit}
+            variant="contained"
+            color="primary"
+          >
+            Update Event
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* MODAL */}
+      <Dialog
+        open={openAttendeesModal}
+        onClose={handleAttendeesClose}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Events Submissions List</DialogTitle>
+        <DialogContent>
+          {Array.isArray(participants) && participants.length > 0 ? (
+            <List>
+              {participants.flat().map((attendee) => (
+                <ListItem key={attendee._id} divider>
+                  <ListItemText
+                    primary={attendee.name}
+                    secondary={attendee.email}
+                  />
+                  <IconButton
+                    color="primary"
+                    onClick={() => console.log(attendee.email)}
+                  >
+                    <Email />
+                  </IconButton>
+                  <IconButton
+                    color="secondary"
+                    onClick={() => console.log(attendee._id)}
+                  >
+                    <Chat />
+                  </IconButton>
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            <Typography>No participants yet.</Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAttendeesClose} color="error">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Confirmation Modal */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)}>

@@ -17,6 +17,10 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { EventNote, Visibility } from "@mui/icons-material";
@@ -25,14 +29,22 @@ import EventServices from "../../Services/EventService";
 import { showLoading, hideLoading } from "../../Utils/loadingUtils";
 import { showAlert } from "../../Utils/alertUtils";
 import FileUpload from "../../Services/FileUploadService";
+import { Email, Message, Chat } from "@mui/icons-material";
+
+
 
 function Event() {
   const userRole = useSelector((state) => state.user?.role);
   const [events, setEvents] = useState([]);
+  const [attendees, setAttendees] = useState([
+    { _id: "1", name: "John Doe", email: "john@example.com" },
+    { _id: "2", name: "Jane Smith", email: "jane@example.com" },
+  ]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSort, setSelectedSort] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const [openAttendeesModal, setOpenAttendeesModal] = useState(false);
   const [newEvent, setNewEvent] = useState({
     name: "",
     description: "",
@@ -44,6 +56,14 @@ function Event() {
     organizer: "",
     role: userRole,
   });
+
+  const handleAttendeesClose = () => {
+    setOpenAttendeesModal(false);
+  };
+
+  const handleAttendeesOpen = () => {
+    setOpenAttendeesModal(true);
+  };
 
   // const getEvents = async () => {
   //   showLoading("Fetching Events...");
@@ -127,7 +147,7 @@ function Event() {
       hideLoading();
     }
   };
-  
+
   const fetchEvents = async () => {
     showLoading("Fetching Events...");
     try {
@@ -142,12 +162,11 @@ function Event() {
   };
 
   useEffect(() => {
-
     fetchEvents();
   }, [openModal]);
 
   const handleEventDeleted = () => {
-    fetchEvents(); 
+    fetchEvents();
   };
 
   const filteredEvents = events.filter((event) => {
@@ -170,7 +189,7 @@ function Event() {
     }
   };
 
-   const sortedEvents = sortEvents(filteredEvents);
+  const sortedEvents = sortEvents(filteredEvents);
 
   const handleModalOpen = () => setOpenModal(true);
   const handleModalClose = () => setOpenModal(false);
@@ -179,7 +198,6 @@ function Event() {
     const { name, value } = e.target;
     setNewEvent((prev) => ({ ...prev, [name]: value }));
   };
-
 
   const handleBannerUpload = async (event) => {
     const file = event.target.files[0];
@@ -279,6 +297,7 @@ function Event() {
             <Button
               variant="outlined"
               color="warning"
+              onClick={handleAttendeesOpen}
               sx={{
                 marginRight: 1,
                 "@media (max-width: 600px)": {
@@ -437,6 +456,49 @@ function Event() {
             color="primary"
           >
             Create Event
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* MODAL */}
+      <Dialog
+        open={openAttendeesModal}
+        onClose={handleAttendeesClose}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Events Submissions List</DialogTitle>
+        <DialogContent>
+          {attendees?.length > 0 ? (
+            <List>
+              {attendees.map((attendee) => (
+                <ListItem key={attendee._id} divider>
+                  <ListItemText
+                    primary={attendee.name}
+                    secondary={attendee.email}
+                  />
+                  <IconButton
+                    color="primary"
+                    onClick={() => handleSendEmail(attendee.email)}
+                  >
+                    <Email />
+                  </IconButton>
+                  <IconButton
+                    color="secondary"
+                    onClick={() => handleSendMessage(attendee._id)}
+                  >
+                    <Chat />
+                  </IconButton>
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            <Typography>No Submissions yet.</Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleAttendeesClose} color="error">
+            Close
           </Button>
         </DialogActions>
       </Dialog>

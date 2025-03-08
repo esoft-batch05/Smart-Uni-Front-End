@@ -39,6 +39,30 @@ class EventServices {
             throw error?.response?.data || new Error("Something went wrong");
         }
     }
+    static async attendEvent(data){
+        try{
+            const response = await post(`/event/attendEvent`,data);
+            return response.data; 
+        } catch(error){
+            throw error?.response?.data || new Error("Something went wrong");
+        }
+    }
+    static async updateEvent(eventId,data){
+        try{
+            const response = await post(`/event/updateEvent/${eventId}`,data);
+            return response.data; 
+        } catch(error){
+            throw error?.response?.data || new Error("Something went wrong");
+        }
+    }
+    static async unAttendEvent(eventId,data){
+        try{
+            const response = await post(`/event/deAttendEvent/${eventId}`, data);
+            return response.data; 
+        } catch(error){
+            throw error?.response?.data || new Error("Something went wrong");
+        }
+    }
     
 }
 
