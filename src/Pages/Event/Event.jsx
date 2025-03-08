@@ -21,6 +21,7 @@ import {
   ListItem,
   ListItemText,
   IconButton,
+  Tooltip,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { EventNote, Visibility } from "@mui/icons-material";
@@ -29,17 +30,12 @@ import EventServices from "../../Services/EventService";
 import { showLoading, hideLoading } from "../../Utils/loadingUtils";
 import { showAlert } from "../../Utils/alertUtils";
 import FileUpload from "../../Services/FileUploadService";
-import { Email, Message, Chat } from "@mui/icons-material";
-
-
+import { Email, Message, Chat, CheckCircle } from "@mui/icons-material";
 
 function Event() {
   const userRole = useSelector((state) => state.user?.role);
   const [events, setEvents] = useState([]);
-  const [attendees, setAttendees] = useState([
-    { _id: "1", name: "John Doe", email: "john@example.com" },
-    { _id: "2", name: "Jane Smith", email: "jane@example.com" },
-  ]);
+  const [attendees, setAttendees] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSort, setSelectedSort] = useState("");
@@ -50,6 +46,7 @@ function Event() {
     description: "",
     date: "",
     eventType: "",
+    proposal: "",
     image: "",
     ticketPrice: "",
     location: "",
@@ -63,7 +60,39 @@ function Event() {
 
   const handleAttendeesOpen = () => {
     setOpenAttendeesModal(true);
+    pendingEvents();
   };
+
+  const pendingEvents = async () => {
+    showLoading("Fetching Events...");
+    try {
+      const response = await EventServices.pendingEvent();
+      setAttendees(response?.data);
+    } catch (error) {
+      showAlert("error", "Something went wrong!");
+    } finally {
+      hideLoading();
+    }
+  };
+
+  const handleApprove = async (id) => {
+    showLoading("Event is Approving...");
+    try {
+      const response = await EventServices.approveEvent(id);
+      showAlert("success", "Event is Approved!");
+      pendingEvents();
+    } catch (error) {
+      showAlert("error", "Something went wrong!");
+    } finally {
+      hideLoading();
+    }
+  };
+
+  const handleViewProposal = async (id) => {
+    const proposalUrl = `http://localhost:5000/api/file/${id}`;
+    window.open(proposalUrl, '_blank'); 
+  };
+
 
   // const getEvents = async () => {
   //   showLoading("Fetching Events...");
@@ -202,30 +231,59 @@ function Event() {
   const handleBannerUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
-
+  
     const formData = new FormData();
     formData.append("file", file);
-
+  
     try {
       const response = await fetch("http://localhost:5000/api/file/upload", {
         method: "POST",
         body: formData,
       });
-
+  
       if (!response.ok) throw new Error("Failed to upload image");
-
+  
       const data = await response.json();
       console.log("Upload response:", data);
-
+  
       setNewEvent((prev) => {
         const updatedEvent = { ...prev, image: data.data.filename };
-        console.log("Updated newEvent:", updatedEvent); // Now correctly logs new state
+        console.log("Updated newEvent (image):", updatedEvent); // Log updated event state
         return updatedEvent;
       });
     } catch (error) {
       console.error("Upload failed:", error);
     }
   };
+  
+  const handleProposalUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+  
+    const formData = new FormData();
+    formData.append("file", file);
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/file/upload", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (!response.ok) throw new Error("Failed to upload proposal");
+  
+      const data = await response.json();
+      console.log("Upload response:", data);
+  
+      setNewEvent((prev) => {
+        const updatedEvent = { ...prev, proposal: data.data.filename };
+        console.log("Updated newEvent (proposal):", updatedEvent); // Log updated event state
+        return updatedEvent;
+      });
+    } catch (error) {
+      console.error("Upload failed:", error);
+    }
+  };
+  
 
   return (
     <Box sx={{ padding: 3 }}>
@@ -278,7 +336,7 @@ function Event() {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid item xs={12} sm={12} md={6}>
           <Button
             variant="outlined"
             color="warning"
@@ -291,7 +349,7 @@ function Event() {
             startIcon={<EventNote />}
             onClick={handleModalOpen}
           >
-            Create Event
+            {userRole === "admin" ? "Create New Event" : "Organize an Event"}
           </Button>
           {userRole === "admin" && (
             <Button
@@ -324,7 +382,9 @@ function Event() {
 
       {/* Create Event Modal */}
       <Dialog open={openModal} onClose={handleModalClose}>
-        <DialogTitle>Create Event</DialogTitle>
+        <DialogTitle>
+          {userRole === "admin" ? "Create New Event" : "Organize an Event"}
+        </DialogTitle>
         <DialogContent>
           <Grid container spacing={2} p={2}>
             <Grid item xs={12}>
@@ -403,6 +463,7 @@ function Event() {
               />
             </Grid>
 
+            {/* Upload Banner */}
             <Grid item xs={12} sm={6}>
               <input
                 accept="image/*"
@@ -440,6 +501,33 @@ function Event() {
                 onChange={handleInputChange}
               />
             </Grid>
+
+            {/* Upload Project Proposal */}
+            <Grid item xs={12}>
+              <input
+                accept=".pdf"
+                type="file"
+                id="upload-proposal"
+                style={{ display: "none" }}
+                onChange={handleProposalUpload}
+              />
+              <label htmlFor="upload-proposal">
+                <Button
+                  variant="outlined"
+                  component="span"
+                  fullWidth
+                  size="small"
+                  color="secondary"
+                >
+                  Upload Project Proposal (PDF)
+                </Button>
+              </label>
+              {newEvent.proposal && (
+                <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                  {newEvent.proposal}
+                </Typography>
+              )}
+            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
@@ -475,20 +563,30 @@ function Event() {
                 <ListItem key={attendee._id} divider>
                   <ListItemText
                     primary={attendee.name}
-                    secondary={attendee.email}
+                    secondary={attendee.organizer}
                   />
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleSendEmail(attendee.email)}
-                  >
-                    <Email />
-                  </IconButton>
-                  <IconButton
-                    color="secondary"
-                    onClick={() => handleSendMessage(attendee._id)}
-                  >
-                    <Chat />
-                  </IconButton>
+
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <Button
+                      variant="outlined"
+                      color="success"
+                      size="small"
+                      startIcon={<CheckCircle fontSize="small" />}
+                      onClick={() => handleApprove(attendee._id)}
+                    >
+                      Approve
+                    </Button>
+
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      size="small"
+                      startIcon={<Visibility fontSize="small" />}
+                      onClick={() => handleViewProposal(attendee.proposal)}
+                    >
+                      View
+                    </Button>
+                  </Box>
                 </ListItem>
               ))}
             </List>

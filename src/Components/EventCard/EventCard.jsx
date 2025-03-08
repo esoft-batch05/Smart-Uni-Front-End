@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardMedia,
@@ -49,6 +49,10 @@ const EventCard = ({ event, onEventDeleted }) => {
   const handleAttendeesClose = () => {
     setOpenAttendeesModal(false);
   };
+
+  useEffect(()=>{
+    setParticipants(event?.attendees);
+  },[participants, onEventDeleted])
 
   const handleAttendeesOpen = () => {
     setOpenAttendeesModal(true);

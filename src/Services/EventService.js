@@ -63,6 +63,23 @@ class EventServices {
             throw error?.response?.data || new Error("Something went wrong");
         }
     }
+    static async pendingEvent(eventId,data){
+        try{
+            const response = await get('/event/pendingEvents');
+            return response.data; 
+        } catch(error){
+            throw error?.response?.data || new Error("Something went wrong");
+        }
+    }
+
+    static async approveEvent(eventId){
+        try{
+            const response = await get(`/event/approveEvents/${eventId}`);
+            return response.data; 
+        } catch(error){
+            throw error?.response?.data || new Error("Something went wrong");
+        }
+    }
     
 }
 
