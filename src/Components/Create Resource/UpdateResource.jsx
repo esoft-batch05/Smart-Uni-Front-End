@@ -17,13 +17,13 @@ import {
 } from "@mui/material";
 import ResourceServices from "../../Services/ResourceService";
 
-function CreateResourceModal({ open, handleClose, fetchList }) {
+function UpdateResourceModal({ open, handleClose, fetchList, selectedResource }) {
   const [resource, setResource] = useState({
-    name: "",
-    type: "",
-    description: "",
-    image: "",
-    inStock: 1, // Initialize with a default value
+    name: selectedResource?.name,
+    type: selectedResource?.type,
+    description: selectedResource?.description,
+    image: selectedResource?.image,
+    inStock: selectedResource?.inStock, 
   });
 
   const handleInputChange = (e) => {
@@ -51,14 +51,7 @@ function CreateResourceModal({ open, handleClose, fetchList }) {
   const handleCreateResource = async () => {
     console.log("Creating Resource: ", resource);
     try {
-      const response = await ResourceServices.createResource(resource);
-      setResource({
-        name: "",
-        type: "",
-        description: "",
-        image: "",
-        inStock: 1,
-      });
+      const response = await ResourceServices.updateResource(selectedResource._id, resource);
       handleClose();
       fetchList();
     } catch (error) {
@@ -245,4 +238,4 @@ function CreateResourceModal({ open, handleClose, fetchList }) {
   );
 }
 
-export default CreateResourceModal;
+export default UpdateResourceModal;

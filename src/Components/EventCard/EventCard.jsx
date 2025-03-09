@@ -41,10 +41,7 @@ const EventCard = ({ event, onEventDeleted }) => {
   const [participants, setParticipants] = useState([event?.attendees]);
   const [eventToDelete, setEventToDelete] = useState(null);
   const [openAttendeesModal, setOpenAttendeesModal] = useState(false);
-  const [attendees, setAttendees] = useState([
-    { _id: "1", name: "John Doe", email: "john@example.com" },
-    { _id: "2", name: "Jane Smith", email: "jane@example.com" },
-  ]);
+
 
   const handleAttendeesClose = () => {
     setOpenAttendeesModal(false);

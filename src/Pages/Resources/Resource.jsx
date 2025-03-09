@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Divider,
   Box,
@@ -22,6 +22,8 @@ import Image1 from "../../assets/Images/65fe64a89de64a706c0120dc-canon-eos-5d-ma
 import Image2 from "../../assets/Images/GVM-800D-RGB-LED-Studio-2-Video-Light-Kit-1.jpg";
 import Image3 from "../../assets/Images/images.jpeg";
 import CreateResourceModal from "../../Components/Create Resource/CreateResource";
+import ResourceServices from "../../Services/ResourceService";
+import { hideLoading, showLoading } from "../../Utils/loadingUtils";
 
 function Resources() {
   const userRole = useSelector((state) => state.user?.role);
@@ -30,6 +32,8 @@ function Resources() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSort, setSelectedSort] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const [resources, setResources] = useState([]);
+
 
   const handleModalOpen = () => setOpenModal(true);
   const handleModalClose = () => setOpenModal(false);
@@ -80,6 +84,23 @@ function Resources() {
         "Lavalier and handheld wireless microphone set for clear audio recording.",
     },
   ];
+
+  const getResources =async () => {
+    showLoading();
+    try{
+        const response = await ResourceServices.getAllResource();
+        setResources(response?.data);
+    }catch(error){
+        console.log(error);
+        
+    }finally{
+        hideLoading();
+    }
+  }
+
+  useEffect(()=>{
+    getResources();
+  },[])
 
   const handleAttendeesOpen = () => {
     // Open attendees logic
@@ -179,14 +200,14 @@ function Resources() {
       <Divider />
 
       <Grid container spacing={3} mt={3}>
-        {resourceTypes.map((resource) => (
+        {resources.map((resource) => (
           <Grid item xs={12} sm={6} md={3} key={resource.id}>
-            <ResourceCard resource={resource} />
+            <ResourceCard resource={resource} fetchList={getResources} />
           </Grid>
         ))}
       </Grid>
 
-      <CreateResourceModal open={openModal} handleClose={handleModalClose} />
+      <CreateResourceModal open={openModal} handleClose={handleModalClose} fetchList={getResources} />
     </Box>
   );
 }

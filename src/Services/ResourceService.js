@@ -16,6 +16,44 @@ class ResourceServices {
 
 
     }
+    static async getAllResource(data) {
+        try {
+            const response = await get('/resource/getAllResources');
+            return response.data;
+
+        } catch (error) {
+            throw error?.response?.data || new Error("Something went wrong");
+
+        }
+
+
+    }
+    static async deleteResource(id) {
+        try {
+            const response = await remove(`/resource/deleteResource/${id}`);
+            return response.data;
+
+        } catch (error) {
+            throw error?.response?.data || new Error("Something went wrong");
+
+        }
+
+
+    }
+    static async updateResource(id, data) {
+        try {
+            const response = await post(`/resource/updateResource/${id}`, data);
+            return response.data;
+
+        } catch (error) {
+            throw error?.response?.data || new Error("Something went wrong");
+
+        }
+
+
+    }
+
+
 }
 
 
