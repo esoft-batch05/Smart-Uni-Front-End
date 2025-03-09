@@ -52,6 +52,18 @@ class ResourceServices {
 
 
     }
+    static async bookResource(id, data) {
+        try {
+            const response = await post(`/resource/bookaResource/${id}`, data);
+            return response.data;
+
+        } catch (error) {
+            throw error?.response?.data || new Error("Something went wrong");
+
+        }
+
+
+    }
 
 
 }

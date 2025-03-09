@@ -11,100 +11,54 @@ import {
   MenuItem,
   Button,
 } from "@mui/material";
-import {
-  Search as SearchIcon,
-  EventNote,
-  Visibility,
-} from "@mui/icons-material";
+import { Search as SearchIcon, EventNote, Visibility } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import ResourceCard from "../../Components/ResourceCard/ResourceCard";
-import Image1 from "../../assets/Images/65fe64a89de64a706c0120dc-canon-eos-5d-mark-iv-dslr-camera-with.jpg";
-import Image2 from "../../assets/Images/GVM-800D-RGB-LED-Studio-2-Video-Light-Kit-1.jpg";
-import Image3 from "../../assets/Images/images.jpeg";
 import CreateResourceModal from "../../Components/Create Resource/CreateResource";
 import ResourceServices from "../../Services/ResourceService";
 import { hideLoading, showLoading } from "../../Utils/loadingUtils";
 
 function Resources() {
   const userRole = useSelector((state) => state.user?.role);
-
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSort, setSelectedSort] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [resources, setResources] = useState([]);
 
-
   const handleModalOpen = () => setOpenModal(true);
   const handleModalClose = () => setOpenModal(false);
 
-  const resourceTypes = [
-    {
-      id: 1,
-      title: "Professional DSLR Camera",
-      type: "Photography",
-      image: Image1,
-      stock: 12,
-      available: true,
-      rating: 4.8,
-      description:
-        "High-end DSLR camera with 4K video capability and multiple lens options.",
-    },
-    {
-      id: 2,
-      title: "LED Lighting Kit",
-      type: "Lighting",
-      image: Image2,
-      stock: 8,
-      available: true,
-      rating: 4.5,
-      description:
-        "Professional lighting kit with adjustable brightness and color temperature.",
-    },
-    {
-      id: 3,
-      title: "Wireless Microphone Set",
-      type: "Audio",
-      image: Image3,
-      stock: 0,
-      available: false,
-      rating: 4.7,
-      description:
-        "Lavalier and handheld wireless microphone set for clear audio recording.",
-    },
-    {
-      id: 3,
-      title: "Wireless Microphone Set",
-      type: "Audio",
-      image: Image3,
-      stock: 0,
-      available: false,
-      rating: 4.7,
-      description:
-        "Lavalier and handheld wireless microphone set for clear audio recording.",
-    },
-  ];
-
-  const getResources =async () => {
+  const getResources = async () => {
     showLoading();
-    try{
-        const response = await ResourceServices.getAllResource();
-        setResources(response?.data);
-    }catch(error){
-        console.log(error);
-        
-    }finally{
-        hideLoading();
+    try {
+      const response = await ResourceServices.getAllResource();
+      setResources(response?.data || []);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      hideLoading();
     }
-  }
-
-  useEffect(()=>{
-    getResources();
-  },[])
-
-  const handleAttendeesOpen = () => {
-    // Open attendees logic
   };
+
+  useEffect(() => {
+    getResources();
+  }, []);
+
+  // Apply filtering logic
+  const filteredResources = resources.filter((resource) => {
+    return (
+      (searchQuery === "" || resource.name?.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (selectedCategory === "" || resource.type === selectedCategory)
+    );
+  });
+
+  // Apply sorting logic
+  const sortedResources = [...filteredResources].sort((a, b) => {
+    if (!selectedSort) return 0;
+    return a.type.localeCompare(b.type);
+  });
 
   return (
     <Box sx={{ padding: 3 }}>
@@ -138,9 +92,13 @@ function Resources() {
               label="Category"
             >
               <MenuItem value="">All</MenuItem>
-              <MenuItem value="Music">Music</MenuItem>
-              <MenuItem value="Tech">Tech</MenuItem>
-              <MenuItem value="Art">Art</MenuItem>
+              <MenuItem value="Technical">Technical</MenuItem>
+              <MenuItem value="Electronics">Electronics</MenuItem>
+              <MenuItem value="Furniture">Furniture</MenuItem>
+              <MenuItem value="Lighting">Lighting</MenuItem>
+              <MenuItem value="Audio">Audio</MenuItem>
+              <MenuItem value="Visual">Visual</MenuItem>
+              <MenuItem value="Other">Other</MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -155,52 +113,41 @@ function Resources() {
               label="Sort By"
             >
               <MenuItem value="">None</MenuItem>
-              <MenuItem value="date">Date</MenuItem>
-              <MenuItem value="rating">Rating</MenuItem>
+              <MenuItem value="type">Category</MenuItem>
             </Select>
           </FormControl>
         </Grid>
 
         {/* Action Buttons */}
         <Grid item xs={12} sm={12} md={6}>
-          <Button
-            variant="outlined"
-            color="warning"
-            sx={{
-              marginRight: 1,
-              "@media (max-width: 600px)": {
-                fontSize: "0.8rem",
-              },
-            }}
-            startIcon={<EventNote />}
-            onClick={handleModalOpen}
-          >
-            {userRole === "admin" ? "Create New Resource" : ""}
-          </Button>
-
-          {/* View Submissions Button for Admin */}
           {userRole === "admin" && (
-            <Button
-              variant="outlined"
-              color="warning"
-              onClick={handleAttendeesOpen}
-              sx={{
-                marginRight: 1,
-                "@media (max-width: 600px)": {
-                  fontSize: "0.8rem",
-                },
-              }}
-              startIcon={<Visibility />}
-            >
-              Approve Resource Bookings
-            </Button>
+            <>
+              <Button
+                variant="outlined"
+                color="warning"
+                sx={{ marginRight: 1 }}
+                startIcon={<EventNote />}
+                onClick={handleModalOpen}
+              >
+                Create New Resource
+              </Button>
+
+              <Button
+                variant="outlined"
+                color="warning"
+                sx={{ marginRight: 1 }}
+                startIcon={<Visibility />}
+              >
+                Approve Resource Bookings
+              </Button>
+            </>
           )}
         </Grid>
       </Grid>
       <Divider />
 
       <Grid container spacing={3} mt={3}>
-        {resources.map((resource) => (
+        {sortedResources.map((resource) => (
           <Grid item xs={12} sm={6} md={3} key={resource.id}>
             <ResourceCard resource={resource} fetchList={getResources} />
           </Grid>

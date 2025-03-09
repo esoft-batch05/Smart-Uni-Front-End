@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -15,6 +15,14 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  FormControl,
+  InputLabel,
+  Select,
+  DialogActions,
+  TextField,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
@@ -29,6 +37,8 @@ import ResourceServices from "../../Services/ResourceService";
 import { hideLoading, showLoading } from "../../Utils/loadingUtils";
 import { showAlert } from "../../Utils/alertUtils";
 import UpdateResourceModal from "../Create Resource/UpdateResource";
+import dayjs from "dayjs";
+import EventServices from "../../Services/EventService";
 
 // Styled components for better visuals
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -102,13 +112,19 @@ const CardHeader = styled(Box)(({ theme }) => ({
 
 function ResourceCard({ resource, onBookItem, onEdit, fetchList }) {
   const userRole = useSelector((state) => state.user?.role);
+  const userId = useSelector((state) => state.user?._id);
   const isAdmin = userRole === "admin";
 
   // Menu state
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const [openModal, setOpenModal] = useState(false);
-
+  const [openBookingModal, setOpenBookingModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState("");
+  const [approvedEvents, setApprovedEvents] = useState([]);
+  const [handoverDate, setHandoverDate] = useState(null);
+  const handleBookClick = () => setOpenBookingModal(true);
+  const handleCloseBookingModal = () => setOpenBookingModal(false);
   const handleModalOpen = () => setOpenModal(true);
   const handleModalClose = () => setOpenModal(false);
 
@@ -120,7 +136,14 @@ function ResourceCard({ resource, onBookItem, onEdit, fetchList }) {
     setAnchorEl(null);
   };
 
-  
+  const getApprovedEvents = async () => {
+    const response = await EventServices.getAllApprovedEvents();
+    setApprovedEvents(response?.data);
+  };
+
+  useEffect(() => {
+    getApprovedEvents();
+  }, []);
 
   const handleEdit = () => {
     handleMenuClose();
@@ -144,11 +167,40 @@ function ResourceCard({ resource, onBookItem, onEdit, fetchList }) {
     }
   };
 
-  const handleBookClick = () => {
-    if (onBookItem && typeof onBookItem === "function") {
-      onBookItem(resource);
-    } else {
-      console.log("Booking resource:", resource);
+  const handleConfirmBooking = async () => {
+    if (!selectedEvent || !handoverDate) {
+      alert("Please select an event and handover date.");
+      return;
+    }
+
+    const bookingData = {
+      eventId: selectedEvent,
+      handoverDate: dayjs(handoverDate).format("YYYY-MM-DD"),
+      userId: userId,
+    };
+
+    console.log("Booking confirmed:", bookingData);
+    showLoading();
+
+    try {
+      const response = await ResourceServices.bookResource(
+        resource._id,
+        bookingData
+      );
+      fetchList();
+      if (response?.data?.status === "approved") {
+        showAlert("success", "Resource Booked!");
+      } else if (response?.data?.status === "pending") {
+        showAlert(
+          "success",
+          "Your Booking is under review and approval is pending. It will be approved within 24 hours after review."
+        );
+      }
+    } catch (error) {
+      showAlert("error", "something went wrong");
+    } finally {
+      hideLoading();
+      handleCloseBookingModal();
     }
   };
 
@@ -291,6 +343,52 @@ function ResourceCard({ resource, onBookItem, onEdit, fetchList }) {
         handleClose={handleModalClose}
         fetchList={fetchList}
       />
+
+      <Dialog open={openBookingModal} onClose={handleCloseBookingModal}>
+        <DialogTitle>Book Resource</DialogTitle>
+        <DialogContent>
+          <FormControl fullWidth sx={{ mt: 2 }} size="small">
+            <InputLabel>Select Event</InputLabel>
+            <Select
+              value={selectedEvent}
+              onChange={(e) => setSelectedEvent(e.target.value)}
+              label="Select Event"
+            >
+              {approvedEvents.map((event, index) => (
+                <MenuItem key={index} value={event._id}>
+                  {" "}
+                  {event.name}{" "}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <Typography variant="body2" sx={{ mt: 2, ml: 1, width: "500px" }}>
+            Handover Date
+          </Typography>
+          <TextField
+            sx={{ mt: 0.5 }}
+            variant="outlined"
+            type="date"
+            fullWidth
+            size="small"
+            name="date"
+            value={handoverDate}
+            onChange={(e) => setHandoverDate(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseBookingModal} color="secondary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmBooking}
+            variant="contained"
+            color="primary"
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
