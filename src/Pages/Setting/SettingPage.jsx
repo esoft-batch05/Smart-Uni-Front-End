@@ -136,7 +136,7 @@ const SettingPage = () => {
         };
         console.log("Updated userData (image):", userData);
 
-        uploadProfileImage(userId, updatedUser);
+        updateUser(userId, updatedUser);
 
         return updatedUser;
       });
@@ -145,7 +145,7 @@ const SettingPage = () => {
     }
   };
 
-  const uploadProfileImage = async (userId, data) => {
+  const updateUser = async (userId, data) => {
     try {
       const response = await UserServices.updateUser(userId, data);
       console.log(response?.data);
@@ -153,11 +153,15 @@ const SettingPage = () => {
   };
 
   const handleSave = (section) => {
-    setSnackbar({
-      open: true,
-      message: `${section} settings saved successfully!`,
-      severity: "success",
-    });
+    if(section === 'Profile'){
+      updateUser(userId, userData);
+    }
+    if(section === 'Address'){
+      updateUser(userId, userData);
+    }
+    if(section === 'Contact'){
+      updateUser(userId, userData);
+    }
   };
 
   const handleSnackbarClose = () => {

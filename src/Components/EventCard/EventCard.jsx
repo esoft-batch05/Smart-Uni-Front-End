@@ -49,6 +49,8 @@ const EventCard = ({ event, onEventDeleted }) => {
 
   useEffect(()=>{
     setParticipants(event?.attendees);
+    console.log('hello',event?.attendees);
+    
   },[participants, onEventDeleted])
 
   const handleAttendeesOpen = () => {
@@ -244,7 +246,8 @@ const EventCard = ({ event, onEventDeleted }) => {
         >
           <AvatarGroup max={4}>
             {participants.map((src, index) => (
-              <Avatar key={index} src={src} />
+              <Avatar onClick={()=>{console.log(participants[index])}} key={index} src={`http://localhost:5000/api/file/${participants[index]?.profileImage}`} />
+              
             ))}
           </AvatarGroup>
           <Rating value={4} precision={0.5} readOnly size="small" />
@@ -253,7 +256,7 @@ const EventCard = ({ event, onEventDeleted }) => {
 
       <CardContent>
         <Typography variant="body1" color="text.secondary">
-          Date:{" "}
+          Date:{" "} 
           {new Date(date).toLocaleDateString("en-US", {
             weekday: "long",
             year: "numeric",

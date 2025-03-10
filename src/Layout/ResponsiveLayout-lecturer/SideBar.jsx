@@ -217,11 +217,11 @@ const ImprovedLayout = () => {
           <Avatar
             sx={{ bgcolor: "white", color: "#ff8300", width: 30, height: 30 }}
           >
-            U
+            U 
           </Avatar>
           {(open || isMobile) && (
             <Typography variant="h6" noWrap component="div">
-              Smart UNI
+              Smart UNI 
             </Typography>
           )}
         </Box>
@@ -272,9 +272,9 @@ const ImprovedLayout = () => {
             <Avatar sx={{ width: 36, height: 36, mr: 2 }}>
               <Avatar
                 sx={{ width: 36, height: 36 }}
-                src={user?.image || undefined}
+                src={`http://localhost:5000/api/file/${user.profileImage}`}
               >
-                {!user?.image &&
+                {!user?.profileImage &&
                   user?.firstName?.split(" ")[0]?.charAt(0).toUpperCase()}
               </Avatar>
             </Avatar>
@@ -304,9 +304,9 @@ const ImprovedLayout = () => {
             <Avatar sx={{ width: 36, height: 36 }}>
               <Avatar
                 sx={{ width: 36, height: 36 }}
-                src={user?.image || undefined}
+                src={`http://localhost:5000/api/file/${user.profileImage}`}
               >
-                {!user?.image &&
+                {!user?.profileImage &&
                   user?.firstName?.split(" ")[0]?.charAt(0).toUpperCase()}
               </Avatar>
             </Avatar>
@@ -331,7 +331,7 @@ const ImprovedLayout = () => {
               <MenuIcon />
             </IconButton>
             <Typography variant="h6" noWrap component="div">
-              Smart UNI
+              Smart UNI 
             </Typography>
           </Toolbar>
         </StyledAppBar>

@@ -52,6 +52,7 @@ const LoginPage = () => {
           role: await response.data.role,
           phone: await response.data.phone,
           dob: await response.data.dob,
+          profileImage: await response.data.profileImage,
         })
       );
       role = response?.data?.role;
