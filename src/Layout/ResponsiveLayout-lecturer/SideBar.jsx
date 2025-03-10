@@ -149,12 +149,13 @@ const ImprovedLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const user = useSelector((state) => state.user);
+  let user = useSelector((state) => state.user);
   const userRole = useSelector((state) => state.user?.role);
 
   // Update drawer state when screen size changes
   useEffect(() => {
     setOpen(!isMobile);
+    
   }, [isMobile]);
 
   const dispatch = useDispatch();
@@ -180,8 +181,8 @@ const ImprovedLayout = () => {
 
   const shortcutsItems = [
     { text: "Tasks", icon: <TasksIcon />, path: "/tasks" },
-    { text: "Inbox", icon: <MessagesIcon />, path: "/help" },
-    { text: "Shop", icon: <ShoppingCartIcon />, path: "/help" },
+    { text: "Inbox", icon: <MessagesIcon />, path: `/${userRole}-message` },
+    { text: "Shop", icon: <ShoppingCartIcon />, path: "/" },
     { text: "Settings", icon: <SettingsIcon />, path: `/${userRole}-settings` },
   ];
 
