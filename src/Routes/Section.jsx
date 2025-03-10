@@ -11,6 +11,7 @@ import AdminLayout from "../Layout/ResponsiveLayout-Admin/SideBar";
 import Dashboard from "../Pages/Dashboard/Dashboard";
 import EventCard from "../Pages/Event/Event";
 import Resource from "../Pages/Resources/Resource";
+import SettingPage from "../Pages/Setting/SettingPage";
 
 function Router() {
   const routes = useRoutes([
@@ -43,7 +44,8 @@ function Router() {
         { path: "/lecturer-events", element: <EventCard /> }, 
         { path: "/lecturer-classes", element: <Dashboard /> }, 
         { path: "/lecturer-library", element: <Dashboard /> }, 
-        { path: "/lecturer-resources", element: <Resource /> }, 
+        { path: "/lecturer-resources", element: <Resource /> },
+        { path: "/lecturer-settings", element: <SettingPage /> },
       ],
     },
     {
@@ -60,7 +62,8 @@ function Router() {
         { path: "/student-events", element: <EventCard /> }, 
         { path: "/student-classes", element: <Dashboard /> }, 
         { path: "/student-library", element: <Dashboard /> }, 
-        { path: "/student-resources", element: <Resource /> },       ],
+        { path: "/student-resources", element: <Resource /> }, 
+        { path: "/student-settings", element: <SettingPage /> },       ],
     },
     {
       path: "/",
@@ -77,6 +80,7 @@ function Router() {
         { path: "/admin-classes", element: <Dashboard /> }, 
         { path: "/admin-library", element: <Dashboard /> }, 
         { path: "/admin-resources", element: <Resource /> }, 
+        { path: "/admin-settings", element: <SettingPage /> }, 
       ],
     },
   ]);

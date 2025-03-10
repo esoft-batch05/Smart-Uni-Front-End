@@ -32,6 +32,14 @@ class UserServices {
             throw e.response ? e.response.data : e;
         }
     }
+    static async getUserInfo(userId) {
+        try {
+            const response = await get(`/user/getUserInfo/${userId}`)
+            return response.data;
+        } catch (e) {
+            throw e.response ? e.response.data : e;
+        }
+    }
 }
 
 export default UserServices;

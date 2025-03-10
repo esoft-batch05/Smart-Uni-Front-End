@@ -182,7 +182,7 @@ const ImprovedLayout = () => {
     { text: "Tasks", icon: <TasksIcon />, path: "/tasks" },
     { text: "Inbox", icon: <MessagesIcon />, path: "/help" },
     { text: "Shop", icon: <ShoppingCartIcon />, path: "/help" },
-    { text: "Settings", icon: <SettingsIcon />, path: "/settings" },
+    { text: "Settings", icon: <SettingsIcon />, path: `/${userRole}-settings` },
   ];
 
   const handleDrawerToggle = () => {
@@ -275,13 +275,13 @@ const ImprovedLayout = () => {
                 src={user?.image || undefined}
               >
                 {!user?.image &&
-                  user?.name?.split(" ")[0]?.charAt(0).toUpperCase()}
+                  user?.firstName?.split(" ")[0]?.charAt(0).toUpperCase()}
               </Avatar>
             </Avatar>
             <Box>
               <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
-                {user?.name?.split(" ")[0].charAt(0).toUpperCase() +
-                  user?.name?.split(" ")[0].slice(1).toLowerCase()}
+                {user?.firstName?.split(" ")[0].charAt(0).toUpperCase() +
+                  user?.firstName?.split(" ")[0].slice(1).toLowerCase()}
               </Typography>
               <Typography>
                 {user?.role?.split(" ")[0].charAt(0).toUpperCase() +
@@ -307,7 +307,7 @@ const ImprovedLayout = () => {
                 src={user?.image || undefined}
               >
                 {!user?.image &&
-                  user?.name?.split(" ")[0]?.charAt(0).toUpperCase()}
+                  user?.firstName?.split(" ")[0]?.charAt(0).toUpperCase()}
               </Avatar>
             </Avatar>
           </Box>

@@ -64,6 +64,30 @@ class ResourceServices {
 
 
     }
+    static async getAllPendingResources() {
+        try {
+            const response = await get(`/resource/getAllPendingResources`);
+            return response.data;
+
+        } catch (error) {
+            throw error?.response?.data || new Error("Something went wrong");
+
+        }
+
+
+    }
+    static async approveResource(resourceId) {
+        try {
+            const response = await get(`resource/approveResource/${resourceId}`);
+            return response.data;
+
+        } catch (error) {
+            throw error?.response?.data || new Error("Something went wrong");
+
+        }
+
+
+    }
 
 
 }

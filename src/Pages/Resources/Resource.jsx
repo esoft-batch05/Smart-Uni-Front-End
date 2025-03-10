@@ -10,25 +10,50 @@ import {
   Select,
   MenuItem,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  List,
+  ListItem,
+  ListItemText,
+  DialogActions,
+  Typography,
 } from "@mui/material";
-import { Search as SearchIcon, EventNote, Visibility } from "@mui/icons-material";
+import {
+  Search as SearchIcon,
+  EventNote,
+  Visibility,
+} from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import ResourceCard from "../../Components/ResourceCard/ResourceCard";
 import CreateResourceModal from "../../Components/Create Resource/CreateResource";
 import ResourceServices from "../../Services/ResourceService";
 import { hideLoading, showLoading } from "../../Utils/loadingUtils";
+import { CheckCircle } from "@mui/icons-material";
+import dayjs from "dayjs";
+import { showAlert } from "../../Utils/alertUtils";
 
 function Resources() {
   const userRole = useSelector((state) => state.user?.role);
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSort, setSelectedSort] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [resources, setResources] = useState([]);
+  const [openAttendeesModal, setOpenAttendeesModal] = useState(false);
+  const [submissions, setSubmissions] = useState([]);
 
   const handleModalOpen = () => setOpenModal(true);
   const handleModalClose = () => setOpenModal(false);
+
+  const handleAttendeesClose = () => {
+    setOpenAttendeesModal(false);
+  };
+
+  const handleAttendeesOpen = () => {
+    setOpenAttendeesModal(true);
+  };
 
   const getResources = async () => {
     showLoading();
@@ -41,15 +66,43 @@ function Resources() {
       hideLoading();
     }
   };
+  const getAllPendingResources = async () => {
+    showLoading();
+    try {
+      const response = await ResourceServices.getAllPendingResources();
+      console.log("hello", response);
+
+      setSubmissions(response?.data || []);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      hideLoading();
+    }
+  };
 
   useEffect(() => {
     getResources();
+    getAllPendingResources();
   }, []);
+
+  const handleApprove = async (id) => {
+    showLoading();
+    try{
+        const response = await ResourceServices.approveResource(id);
+        showAlert('success', 'Approved Resource!');
+        handleAttendeesClose();
+    }catch(error){
+        showAlert('error', 'something went wrong!');
+    }finally{
+        hideLoading();
+    }
+  }
 
   // Apply filtering logic
   const filteredResources = resources.filter((resource) => {
     return (
-      (searchQuery === "" || resource.name?.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (searchQuery === "" ||
+        resource.name?.toLowerCase().includes(searchQuery.toLowerCase())) &&
       (selectedCategory === "" || resource.type === selectedCategory)
     );
   });
@@ -136,6 +189,7 @@ function Resources() {
                 variant="outlined"
                 color="warning"
                 sx={{ marginRight: 1 }}
+                onClick={handleAttendeesOpen}
                 startIcon={<Visibility />}
               >
                 Approve Resource Bookings
@@ -154,7 +208,70 @@ function Resources() {
         ))}
       </Grid>
 
-      <CreateResourceModal open={openModal} handleClose={handleModalClose} fetchList={getResources} />
+      <CreateResourceModal
+        open={openModal}
+        handleClose={handleModalClose}
+        fetchList={getResources}
+      />
+
+      {/* Modal */}
+      <Dialog
+        open={openAttendeesModal}
+        onClose={handleAttendeesClose}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Resource Submissions List</DialogTitle>
+        <DialogContent>
+          {submissions?.length > 0 ? (
+            <List>
+              {submissions.map((attendee) => (
+                <ListItem key={attendee._id} divider>
+                  <ListItemText
+                    primary={attendee.name} // Who booked the resource
+                    secondary={
+                      <>
+                        <Typography variant="body2">
+                          <strong>Event:</strong> {attendee.event.name}
+                        </Typography>
+                        <Typography variant="body2">
+                          <strong>Date:</strong>{" "}
+                          {dayjs(attendee.eventDate).format("DD/MM/YYYY")}
+                        </Typography>
+                        <Typography variant="body2">
+                          <strong>Organizer:</strong> {attendee.bookedBy.name}
+                        </Typography>
+                      </>
+                    }
+                  />
+
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <Button
+                      variant="outlined"
+                      color="success"
+                      size="small"
+                      startIcon={<CheckCircle fontSize="small" />}
+                      onClick={() => handleApprove(attendee._id)}
+                    >
+                      Approve
+                    </Button>
+
+                    
+                  </Box>
+                </ListItem>
+              ))}
+            </List>
+          ) : (
+            <Typography>No Submissions yet.</Typography>
+          )}
+        </DialogContent>
+
+        <DialogActions>
+          <Button onClick={handleAttendeesClose} color="error">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

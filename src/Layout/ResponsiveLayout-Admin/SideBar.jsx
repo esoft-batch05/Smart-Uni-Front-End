@@ -181,7 +181,7 @@ const ImprovedLayout = () => {
     { text: 'Tasks', icon: <TasksIcon />, path: '/tasks' },
     { text: 'Inbox', icon: <MessagesIcon />, path: '/help' },
     { text: 'Shop', icon: <ShoppingCartIcon />, path: '/help' },
-    { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
+    { text: 'Settings', icon: <SettingsIcon />, path: '/admin-settings' },
   ];
 
   const handleDrawerToggle = () => {

@@ -47,7 +47,7 @@ const LoginPage = () => {
       dispatch(
         updateUser({
           _id: await response.data._id,
-          name: await response.data.name,
+          firstName: await response.data.firstName,
           email: await response.data.email,
           role: await response.data.role,
           phone: await response.data.phone,

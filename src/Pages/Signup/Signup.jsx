@@ -39,11 +39,10 @@ const SignUp = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: "",
+      firstName: "",
       email: "",
       password: "",
       phoneNumber: "",
-      address: "Colombo",
       dateOfBirth: null,
       role: "",
     },
@@ -121,7 +120,7 @@ const SignUp = () => {
                 </Typography>
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <Controller
-                    name="name"
+                    name="firstName"
                     control={control}
                     rules={{ required: "Name is required" }}
                     render={({ field }) => (

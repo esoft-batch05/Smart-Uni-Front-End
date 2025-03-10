@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   _id: "67c952f2daccb0e6af194b8d",
-  name: "sahan Kumarage",
+  firstName: "sahan Kumarage",
   email: "kavishkasahandj@gmail.com",
   role: "lecturer",
   phone: "0767138960",
