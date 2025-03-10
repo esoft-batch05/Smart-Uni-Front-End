@@ -40,6 +40,14 @@ class UserServices {
             throw e.response ? e.response.data : e;
         }
     }
+    static async updateUser(userId, data) {
+        try {
+            const response = await post(`/user/updateUser/${userId}`, data)
+            return response.data;
+        } catch (e) {
+            throw e.response ? e.response.data : e;
+        }
+    }
 }
 
 export default UserServices;

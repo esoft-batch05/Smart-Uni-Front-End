@@ -51,7 +51,10 @@ const SettingPage = () => {
   const [tabValue, setTabValue] = useState(0);
   const userId = useSelector((state) => state.user?._id);
 
-  const [profileImage, setProfileImage] = useState("/api/placeholder/150/150");
+  const [profileImage, setProfileImage] = useState({
+    image: "",
+    images: "",
+  });
   const [user, setUser] = useState({});
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -68,15 +71,17 @@ const SettingPage = () => {
     phone: user?.phone,
     alternatePhone: "",
     address: {
-      street: "123 Main St",
-      city: "New York",
-      state: "NY",
-      zipCode: "10001",
-      country: "USA",
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      country: "",
     },
     password: "",
     confirmPassword: "",
     bio: "",
+    profileImage: "",
+    images: "",
   });
 
   const handleTabChange = (event, newValue) => {
@@ -103,14 +108,48 @@ const SettingPage = () => {
     }
   };
 
-  const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImage(e.target.result);
-      };
-      reader.readAsDataURL(e.target.files[0]);
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("http://localhost:5000/api/file/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Failed to upload image");
+
+      const data = await response.json();
+      console.log("Upload response:", data);
+
+      const newFileName = data.data.filename; 
+
+      setUserData((prev) => {
+        const updatedUser = {
+          ...prev,
+          images: URL.createObjectURL(file),
+          profileImage: newFileName, 
+        };
+        console.log("Updated userData (image):", userData);
+
+        uploadProfileImage(userId, updatedUser);
+
+        return updatedUser;
+      });
+    } catch (error) {
+      console.error("Upload failed:", error);
     }
+  };
+
+  const uploadProfileImage = async (userId, data) => {
+    try {
+      const response = await UserServices.updateUser(userId, data);
+      console.log(response?.data);
+    } catch (error) {}
   };
 
   const handleSave = (section) => {
@@ -129,15 +168,38 @@ const SettingPage = () => {
     try {
       const response = await UserServices.getUserInfo(userId);
       setUser(response?.data);
-      console.log(user);
-      
-      return response?.data;
-    } catch (error) {}
+      console.log(response);
+    } catch (error) {
+      console.error("Error fetching user data", error);
+    }
   };
 
   useEffect(() => {
     getUserData();
-  }, [userData]);
+  }, []); // Fetch user data once when component mounts
+
+  useEffect(() => {
+    if (user && Object.keys(user).length > 0) {
+      setUserData((prev) => ({
+        ...prev,
+        firstName: user.firstName || prev.firstName,
+        lastName: user.lastName || prev.lastName,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone,
+        alternatePhone: user.alternatePhone || prev.alternatePhone,
+        profileImage: user.profileImage || prev.profileImage,
+        bio: user.bio || prev.bio,
+        address: {
+          ...prev.address,
+          country: user.address?.country || prev.address.country,
+          city: user.address?.city || prev.address.city,
+          state: user.address?.state || prev.address.state,
+          street: user.address?.street || prev.address.street,
+          zipCode: user.address?.zipCode || prev.address.zipCode,
+        },
+      }));
+    }
+  }, [user]);
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -153,7 +215,7 @@ const SettingPage = () => {
         >
           <Box sx={{ textAlign: "center" }}>
             <Avatar
-              src={profileImage}
+              src={`http://localhost:5000/api/file/${userData.profileImage}`}
               sx={{
                 width: 150,
                 height: 150,
@@ -222,9 +284,10 @@ const SettingPage = () => {
                   fullWidth
                   label="First Name"
                   name="firstName"
-                  value={userData.firstName}
+                  value={userData.firstName || ""}
                   onChange={handleInputChange}
                   variant="outlined"
+                  InputLabelProps={{ shrink: !!userData.firstName }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -235,6 +298,7 @@ const SettingPage = () => {
                   value={userData.lastName}
                   onChange={handleInputChange}
                   variant="outlined"
+                  InputLabelProps={{ shrink: !!userData.lastName }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -245,6 +309,7 @@ const SettingPage = () => {
                   value={userData.email}
                   onChange={handleInputChange}
                   variant="outlined"
+                  InputLabelProps={{ shrink: !!userData.email }}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -262,6 +327,7 @@ const SettingPage = () => {
                   value={userData.bio}
                   onChange={handleInputChange}
                   variant="outlined"
+                  InputLabelProps={{ shrink: !!userData.bio }}
                   multiline
                   rows={4}
                 />
@@ -300,6 +366,7 @@ const SettingPage = () => {
                   label="Street Address"
                   name="address.street"
                   value={userData.address.street}
+                  InputLabelProps={{ shrink: !!userData.address.street }}
                   onChange={handleInputChange}
                   variant="outlined"
                 />
@@ -310,6 +377,7 @@ const SettingPage = () => {
                   label="City"
                   name="address.city"
                   value={userData.address.city}
+                  InputLabelProps={{ shrink: !!userData.address.city }}
                   onChange={handleInputChange}
                   variant="outlined"
                 />
@@ -320,6 +388,7 @@ const SettingPage = () => {
                   label="State/Province"
                   name="address.state"
                   value={userData.address.state}
+                  InputLabelProps={{ shrink: !!userData.address.state }}
                   onChange={handleInputChange}
                   variant="outlined"
                 />
@@ -330,6 +399,7 @@ const SettingPage = () => {
                   label="ZIP/Postal Code"
                   name="address.zipCode"
                   value={userData.address.zipCode}
+                  InputLabelProps={{ shrink: !!userData.address.zipCode }}
                   onChange={handleInputChange}
                   variant="outlined"
                 />
@@ -340,6 +410,7 @@ const SettingPage = () => {
                   label="Country"
                   name="address.country"
                   value={userData.address.country}
+                  InputLabelProps={{ shrink: !!userData.address.country }}
                   onChange={handleInputChange}
                   variant="outlined"
                 />

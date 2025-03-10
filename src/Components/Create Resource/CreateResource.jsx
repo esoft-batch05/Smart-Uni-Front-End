@@ -90,7 +90,7 @@ function CreateResourceModal({ open, handleClose, fetchList }) {
           images: URL.createObjectURL(file),
           image: data.data.filename,
         };
-        console.log("Updated newEvent (image):", updatedResource); // Log updated event state
+        console.log("Updated newEvent (image):", updatedResource);
         return updatedResource;
       });
     } catch (error) {
