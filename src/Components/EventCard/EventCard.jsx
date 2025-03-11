@@ -32,7 +32,7 @@ import { showAlert } from "../../Utils/alertUtils";
 import { Email, Message, Chat } from "@mui/icons-material";
 
 const EventCard = ({ event, onEventDeleted }) => {
-  const { name, date, location, image, _id } = event;
+  const { name, date, venue, image, _id } = event;
   const userRole = useSelector((state) => state.user?.role);
   const userId = useSelector((state) => state.user?._id);
 
@@ -70,7 +70,7 @@ const EventCard = ({ event, onEventDeleted }) => {
     eventType: event?.eventType,
     image: event?.image,
     ticketPrice: "",
-    location: event?.location,
+    venue: event?.venue,
     organizer: event?.organizer,
     role: userRole,
   });
@@ -272,7 +272,7 @@ const EventCard = ({ event, onEventDeleted }) => {
           })}
         </Typography>
         <Typography variant="body1" color="text.secondary" mb={2}>
-          Venue: {location}
+          Venue: {venue?.name}
         </Typography>
 
         <Box display="flex" gap={1} flexWrap="wrap">

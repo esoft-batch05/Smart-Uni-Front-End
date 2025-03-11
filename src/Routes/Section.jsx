@@ -13,6 +13,7 @@ import EventCard from "../Pages/Event/Event";
 import Resource from "../Pages/Resources/Resource";
 import SettingPage from "../Pages/Setting/SettingPage";
 import Message from "../Pages/Message/Message";
+import CampusMapExample from "../Pages/Tasks/Tasks";
 
 function Router() {
   const routes = useRoutes([
@@ -48,6 +49,7 @@ function Router() {
         { path: "/lecturer-resources", element: <Resource /> },
         { path: "/lecturer-settings", element: <SettingPage /> },
         { path: "/lecturer-message", element: <Message /> },
+        { path: "/tasks", element: <CampusMapExample /> },
       ],
     },
     {
@@ -67,6 +69,7 @@ function Router() {
         { path: "/student-resources", element: <Resource /> }, 
         { path: "/student-settings", element: <SettingPage /> }, 
         { path: "/student-message", element: <Message /> },
+        { path: "/tasks", element: <CampusMapExample /> },
       
       ],
     },
@@ -87,6 +90,7 @@ function Router() {
         { path: "/admin-resources", element: <Resource /> }, 
         { path: "/admin-settings", element: <SettingPage /> }, 
         { path: "/admin-message", element: <Message /> },
+        { path: "/tasks", element: <CampusMapExample /> },
 
         
       ],

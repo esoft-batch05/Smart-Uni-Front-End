@@ -20,7 +20,6 @@ function App() {
         <BrowserRouter>
           <AlertSystem />
           <Loading />
-          <WhatsAppButton />
           <Router />
         </BrowserRouter>
       </ThemeProvider>

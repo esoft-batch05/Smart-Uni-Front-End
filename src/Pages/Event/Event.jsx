@@ -31,11 +31,13 @@ import { showLoading, hideLoading } from "../../Utils/loadingUtils";
 import { showAlert } from "../../Utils/alertUtils";
 import FileUpload from "../../Services/FileUploadService";
 import { Email, Message, Chat, CheckCircle } from "@mui/icons-material";
+import VenueServices from "../../Services/VenueService";
 
 function Event() {
   const userRole = useSelector((state) => state.user?.role);
   const [events, setEvents] = useState([]);
   const [attendees, setAttendees] = useState([]);
+  const [venues, setVenues] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSort, setSelectedSort] = useState("");
@@ -50,6 +52,7 @@ function Event() {
     image: "",
     ticketPrice: "",
     location: "",
+    venue:"",
     organizer: "",
     role: userRole,
   });
@@ -91,9 +94,24 @@ function Event() {
 
   const handleViewProposal = async (id) => {
     const proposalUrl = `http://localhost:5000/api/file/${id}`;
-    window.open(proposalUrl, '_blank'); 
+    window.open(proposalUrl, "_blank");
   };
 
+  useEffect(() => {
+    const getEvents = async () => {
+      showLoading("Fetching Events...");
+      try {
+        const response = await VenueServices.getAllVenue();
+        setVenues(response?.data);
+        return response?.data;
+      } catch (error) {
+        showAlert("error", "Something went wrong!");
+      } finally {
+        hideLoading();
+      }
+    };
+    getEvents();
+  }, []);
 
   // const getEvents = async () => {
   //   showLoading("Fetching Events...");
@@ -169,7 +187,10 @@ function Event() {
         showAlert("success", "Event Created!");
         setOpenModal(false);
       } else if (response?.data?.status === "pending") {
-        showAlert("success", "Your event is under review and approval is pending. It will be approved within 24 hours after review.");
+        showAlert(
+          "success",
+          "Your event is under review and approval is pending. It will be approved within 24 hours after review."
+        );
         setOpenModal(false);
       }
     } catch (error) {
@@ -233,21 +254,21 @@ function Event() {
   const handleBannerUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
-  
+
     const formData = new FormData();
     formData.append("file", file);
-  
+
     try {
       const response = await fetch("http://localhost:5000/api/file/upload", {
         method: "POST",
         body: formData,
       });
-  
+
       if (!response.ok) throw new Error("Failed to upload image");
-  
+
       const data = await response.json();
       console.log("Upload response:", data);
-  
+
       setNewEvent((prev) => {
         const updatedEvent = { ...prev, image: data.data.filename };
         console.log("Updated newEvent (image):", updatedEvent); // Log updated event state
@@ -257,25 +278,25 @@ function Event() {
       console.error("Upload failed:", error);
     }
   };
-  
+
   const handleProposalUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
-  
+
     const formData = new FormData();
     formData.append("file", file);
-  
+
     try {
       const response = await fetch("http://localhost:5000/api/file/upload", {
         method: "POST",
         body: formData,
       });
-  
+
       if (!response.ok) throw new Error("Failed to upload proposal");
-  
+
       const data = await response.json();
       console.log("Upload response:", data);
-  
+
       setNewEvent((prev) => {
         const updatedEvent = { ...prev, proposal: data.data.filename };
         console.log("Updated newEvent (proposal):", updatedEvent); // Log updated event state
@@ -285,7 +306,6 @@ function Event() {
       console.error("Upload failed:", error);
     }
   };
-  
 
   return (
     <Box sx={{ padding: 3 }}>
@@ -454,15 +474,21 @@ function Event() {
             )}
 
             <Grid item xs={12} sm={6}>
-              <TextField
-                label="Location"
-                variant="outlined"
-                fullWidth
-                size="small"
-                name="location"
-                value={newEvent.location}
-                onChange={handleInputChange}
-              />
+              <FormControl fullWidth size="small">
+                <InputLabel>Venue</InputLabel>
+                <Select
+                  name="venue"
+                  value={newEvent.venue?._id}
+                  onChange={handleInputChange}
+                  label="Venue"
+                >
+                  {venues.map((venue) => (
+                    <MenuItem key={venue._id} value={venue._id}>
+                      {venue.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
 
             {/* Upload Banner */}
