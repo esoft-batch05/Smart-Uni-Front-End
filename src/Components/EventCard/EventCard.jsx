@@ -30,6 +30,7 @@ import EventServices from "../../Services/EventService";
 import { hideLoading, showLoading } from "../../Utils/loadingUtils";
 import { showAlert } from "../../Utils/alertUtils";
 import { Email, Message, Chat } from "@mui/icons-material";
+import VenueServices from "../../Services/VenueService";
 
 const EventCard = ({ event, onEventDeleted }) => {
   const { name, date, venue, image, _id } = event;
@@ -38,20 +39,35 @@ const EventCard = ({ event, onEventDeleted }) => {
 
   const [openModal, setOpenModal] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
+    const [venues, setVenues] = useState([]);
   const [participants, setParticipants] = useState([event?.attendees]);
   const [eventToDelete, setEventToDelete] = useState(null);
   const [openAttendeesModal, setOpenAttendeesModal] = useState(false);
-
 
   const handleAttendeesClose = () => {
     setOpenAttendeesModal(false);
   };
 
-  useEffect(()=>{
+  useEffect(() => {
+      const getEvents = async () => {
+        showLoading("Fetching Events...");
+        try {
+          const response = await VenueServices.getAllVenue();
+          setVenues(response?.data);
+          return response?.data;
+        } catch (error) {
+          showAlert("error", "Something went wrong!");
+        } finally {
+          hideLoading();
+        }
+      };
+      getEvents();
+    }, []);
+
+  useEffect(() => {
     setParticipants(event?.attendees);
-    console.log('hello',event?.attendees);
-    
-  },[participants, onEventDeleted])
+    console.log("hello", event?.attendees);
+  }, [participants, onEventDeleted]);
 
   const handleAttendeesOpen = () => {
     setOpenAttendeesModal(true);
@@ -169,7 +185,7 @@ const EventCard = ({ event, onEventDeleted }) => {
   const unAttendEvent = async (eventId, userId) => {
     showLoading("Attending...");
     try {
-      const response = await EventServices.unAttendEvent(eventId,userId );
+      const response = await EventServices.unAttendEvent(eventId, userId);
       showAlert("success", "Unattended to Event!");
       onEventDeleted();
     } catch (error) {
@@ -246,8 +262,13 @@ const EventCard = ({ event, onEventDeleted }) => {
         >
           <AvatarGroup max={4}>
             {participants.map((src, index) => (
-              <Avatar onClick={()=>{console.log(participants[index])}} key={index} src={`http://localhost:5000/api/file/${participants[index]?.profileImage}`} />
-              
+              <Avatar
+                onClick={() => {
+                  console.log(participants[index]);
+                }}
+                key={index}
+                src={`http://localhost:5000/api/file/${participants[index]?.profileImage}`}
+              />
             ))}
           </AvatarGroup>
           <Rating value={4} precision={0.5} readOnly size="small" />
@@ -256,7 +277,7 @@ const EventCard = ({ event, onEventDeleted }) => {
 
       <CardContent>
         <Typography variant="body1" color="text.secondary">
-          Date:{" "} 
+          Date:{" "}
           {new Date(date).toLocaleDateString("en-US", {
             weekday: "long",
             year: "numeric",
@@ -295,8 +316,7 @@ const EventCard = ({ event, onEventDeleted }) => {
               },
             }}
           >
-          {isUserAttended ? "Unattend" : "Attend"}
-
+            {isUserAttended ? "Unattend" : "Attend"}
           </Button>
           {userRole === "admin" && (
             <>
@@ -347,7 +367,7 @@ const EventCard = ({ event, onEventDeleted }) => {
       </CardContent>
 
       <Dialog open={openUpdateModal} onClose={handleModalClose}>
-        <DialogTitle>Create Event</DialogTitle>
+        <DialogTitle>Update Event</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} p={2}>
             <Grid item xs={12}>
@@ -415,15 +435,21 @@ const EventCard = ({ event, onEventDeleted }) => {
             )}
 
             <Grid item xs={12} sm={6}>
-              <TextField
-                label="Location"
-                variant="outlined"
-                fullWidth
-                size="small"
-                name="location"
-                value={newEvent.location}
-                onChange={handleInputChange}
-              />
+              <FormControl fullWidth size="small">
+                <InputLabel>Venue</InputLabel>
+                <Select
+                  name="venue"
+                  value={newEvent.venue?._id}
+                  onChange={handleInputChange}
+                  label="Venue"
+                >
+                  {venues.map((venue) => (
+                    <MenuItem key={venue._id} value={venue._id}>
+                      {venue.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
 
             <Grid item xs={12} sm={6}>

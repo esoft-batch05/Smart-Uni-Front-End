@@ -97,8 +97,8 @@ const CampusMap = ({ events = [] }) => {
       type: "facility",
       x: 130,
       y: 150,
-      width: 100,
-      height: 70,
+      width: 150,
+      height: 90,
       color: "#e0f7fa",
     },
     {
