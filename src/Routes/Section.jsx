@@ -14,6 +14,8 @@ import Resource from "../Pages/Resources/Resource";
 import SettingPage from "../Pages/Setting/SettingPage";
 import Message from "../Pages/Message/Message";
 import CampusMapExample from "../Pages/Tasks/Tasks";
+import Library from "../Pages/Library/Library";
+import Classes from "../Pages/Classes/Classes";
 
 function Router() {
   const routes = useRoutes([
@@ -44,8 +46,8 @@ function Router() {
       children: [
         { path: "/lecturer-dashboard", element: <Dashboard /> }, 
         { path: "/lecturer-events", element: <EventCard /> }, 
-        { path: "/lecturer-classes", element: <Dashboard /> }, 
-        { path: "/lecturer-library", element: <Dashboard /> }, 
+        { path: "/lecturer-classes", element: <Classes /> }, 
+        { path: "/lecturer-library", element: <Library /> }, 
         { path: "/lecturer-resources", element: <Resource /> },
         { path: "/lecturer-settings", element: <SettingPage /> },
         { path: "/lecturer-message", element: <Message /> },
@@ -64,8 +66,8 @@ function Router() {
       children: [
         { path: "/student-dashboard", element: <Dashboard /> }, 
         { path: "/student-events", element: <EventCard /> }, 
-        { path: "/student-classes", element: <Dashboard /> }, 
-        { path: "/student-library", element: <Dashboard /> }, 
+        { path: "/student-classes", element: <Classes /> }, 
+        { path: "/student-library", element: <Library /> }, 
         { path: "/student-resources", element: <Resource /> }, 
         { path: "/student-settings", element: <SettingPage /> }, 
         { path: "/student-message", element: <Message /> },
@@ -85,8 +87,8 @@ function Router() {
       children: [
         { path: "/admin-dashboard", element: <Dashboard /> }, 
         { path: "/admin-events", element: <EventCard /> }, 
-        { path: "/admin-classes", element: <Dashboard /> }, 
-        { path: "/admin-library", element: <Dashboard /> }, 
+        { path: "/admin-classes", element: <Classes /> }, 
+        { path: "/admin-library", element: <Library /> }, 
         { path: "/admin-resources", element: <Resource /> }, 
         { path: "/admin-settings", element: <SettingPage /> }, 
         { path: "/admin-message", element: <Message /> },

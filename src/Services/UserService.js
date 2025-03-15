@@ -48,6 +48,17 @@ class UserServices {
             throw e.response ? e.response.data : e;
         }
     }
+
+    static async getAllUsers() {
+        try {
+            const response = await get(`/user/getAllUsers`);
+            return response;
+
+        } catch (error) {
+            throw e.response ? e.response.data : e;
+
+        }
+    }
 }
 
 export default UserServices;

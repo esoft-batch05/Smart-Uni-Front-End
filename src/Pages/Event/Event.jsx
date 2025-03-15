@@ -32,6 +32,7 @@ import { showAlert } from "../../Utils/alertUtils";
 import FileUpload from "../../Services/FileUploadService";
 import { Email, Message, Chat, CheckCircle } from "@mui/icons-material";
 import VenueServices from "../../Services/VenueService";
+import MessageServices from "../../Services/MessageService";
 
 function Event() {
   const userRole = useSelector((state) => state.user?.role);
@@ -112,6 +113,8 @@ function Event() {
     };
     getEvents();
   }, []);
+
+
 
   // const getEvents = async () => {
   //   showLoading("Fetching Events...");

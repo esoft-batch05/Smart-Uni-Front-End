@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Paper,
@@ -18,8 +18,7 @@ import {
   Toolbar,
   useMediaQuery,
   useTheme,
-  Snackbar,
-  Alert,
+  CssBaseline,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -31,378 +30,197 @@ import {
   Phone as PhoneIcon,
   Videocam as VideocamIcon,
 } from "@mui/icons-material";
+import UserServices from "../../Services/UserService";
 import MessageServices from "../../Services/MessageService";
 import { useSelector } from "react-redux";
 
 // Component takes height and width props to fit within existing layout
-const Message = ({ height = 820, width = "100%" }) => {
+const MessageApp = ({ height = 800, width = "100%" }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [drawerOpen, setDrawerOpen] = useState(!isMobile);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [conversations, setConversations] = useState([]);
-  const [messages, setMessages] = useState({});
+  const [currentMessages, setCurrentMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const [filteredConversations, setFilteredConversations] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [onlineUsers, setOnlineUsers] = useState([]);
-  const [typingUsers, setTypingUsers] = useState({});
-  const messageEndRef = useRef(null);
-  const typingTimeouts = useRef({});
-  const messageServices = useRef(new MessageServices());
-
-  const userId = useSelector((state) => state.user?._id);
-
-  // Initialize socket and fetch conversations on component mount
-  useEffect(() => {
-    const initializeMessageSystem = async () => {
-      try {
-        messageServices.current.initializeSocket();
-
-        // Set up socket event callbacks
-        messageServices.current.setCallbacks({
-          onNewMessage: handleNewMessage,
-          onUserTyping: handleUserTyping,
-          onUserStoppedTyping: handleUserStoppedTyping,
-          onMessageRead: handleMessageRead,
-          onOnlineUsers: handleOnlineUsers,
-          onError: handleError,
-        });
-
-        // Fetch conversations
-        await fetchConversations();
-      } catch (error) {
-        setError("Failed to initialize message system");
-        console.error(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    initializeMessageSystem();
-
-    // Clean up on component unmount
-    return () => {
-      messageServices.current.disconnectSocket();
-    };
-  }, []);
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const currentUser = useSelector((state) => state.user?._id);
 
   // Handle drawer visibility based on screen size
   useEffect(() => {
     setDrawerOpen(!isMobile);
   }, [isMobile]);
 
-  // Filter conversations based on search query
+  // Get all conversations for the current user
+  const getConversations = async (user) => {
+    try {
+      const response = await MessageServices.getConversation(user);
+      if (Array.isArray(response)) {
+        setConversations(response);
+        
+        // Update user list with conversation data
+        updateUsersWithConversations(response);
+      } else {
+        console.error("Expected array of conversations but got:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching conversations:", error);
+    }
+  };
+
+  // Update the user list with conversation data
+  const updateUsersWithConversations = (conversationData) => {
+    setUsers(prevUsers => {
+      const updatedUsers = [...prevUsers];
+      
+      // Add unread message counts and last messages to user objects
+      conversationData.forEach(conv => {
+        const userIndex = updatedUsers.findIndex(user => user.id === conv.user._id);
+        if (userIndex !== -1) {
+          updatedUsers[userIndex].lastMessage = conv.lastMessage;
+          // You could add unread count logic here if that data becomes available
+        }
+      });
+      
+      return updatedUsers;
+    });
+  };
+
+  // Load initial data
+  useEffect(() => {
+      
+      getConversations(selectedUser?.id);
+      getAllUsers();
+   
+  }, [selectedUser]);
+
+  // Get all users
+  const getAllUsers = async () => {
+    try {
+      const response = await UserServices.getAllUsers();
+      const userData = response?.data?.data;
+
+      if (userData && Array.isArray(userData)) {
+        // Map API users to expected format
+        const formattedUsers = userData.map((user) => ({
+          id: user._id, // Use MongoDB _id as unique ID
+          name: `${user.firstName} ${user.lastName}`, // Ensure the name field is correctly formatted
+          avatar: user.profileImage
+            ? `http://localhost:5000/api/file/${user.profileImage}`
+            : "https://mui.com/static/images/avatar/1.jpg",
+          unread: 0,
+        }));
+
+        setUsers(formattedUsers);
+        setFilteredUsers(formattedUsers);
+      } else {
+        console.error("Invalid user data format:", userData);
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  // Filter users based on search query
   useEffect(() => {
     if (!searchQuery) {
-      setFilteredConversations(conversations);
+      setFilteredUsers(users);
       return;
     }
 
-    const filtered = conversations.filter((convo) =>
-      convo.user.username.toLowerCase().includes(searchQuery.toLowerCase())
+    const filtered = users.filter((user) =>
+      user.name?.toLowerCase().includes(searchQuery?.toLowerCase())
     );
-    setFilteredConversations(filtered);
-  }, [searchQuery, conversations]);
+    setFilteredUsers(filtered);
+  }, [searchQuery, users]);
 
-  // Scroll to bottom when messages change
+  // When a user is selected, load their messages
   useEffect(() => {
-    if (messageEndRef.current) {
-      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
-
-  // Fetch user conversations
-  const fetchConversations = async () => {
-    try {
-      const data = await MessageServices.getConversations(userId);
-      setConversations(data);
-      
-      setFilteredConversations(data);
-    } catch (error) {
-      setError("Failed to fetch conversations");
-      console.error(error);
-    }
-  };
-
-  // Fetch messages for a specific user
-  const fetchMessages = async (userId) => {
-    try {
-      const data = await MessageServices.getMessages(userId);
-      setMessages((prev) => ({
-        ...prev,
-        [userId]: data,
-      }));
-    } catch (error) {
-      setError("Failed to fetch messages");
-      console.error(error);
-    }
-  };
-
-  // Socket event handlers
-  const handleNewMessage = (data) => {
-    const { message, sender } = data;
-
-    // Update messages if conversation is active
-    setMessages((prev) => {
-      const userId = sender._id;
-      const currentMessages = prev[userId] || [];
-      return {
-        ...prev,
-        [userId]: [...currentMessages, message],
-      };
-    });
-
-    // Update conversation list with new message
-    updateConversationWithMessage(data);
-
-    // Mark message as read if conversation is active
-    if (selectedUser && selectedUser._id === sender._id) {
-      messageServices.current.markMessageAsRead(message._id);
-    }
-  };
-
-  const handleUserTyping = (data) => {
-    const { userId, username } = data;
-
-    // Clear existing timeout if any
-    if (typingTimeouts.current[userId]) {
-      clearTimeout(typingTimeouts.current[userId]);
-    }
-
-    // Set typing status
-    setTypingUsers((prev) => ({
-      ...prev,
-      [userId]: username,
-    }));
-
-    // Clear typing status after 3 seconds of inactivity
-    typingTimeouts.current[userId] = setTimeout(() => {
-      setTypingUsers((prev) => {
-        const updated = { ...prev };
-        delete updated[userId];
-        return updated;
-      });
-    }, 3000);
-  };
-
-  const handleUserStoppedTyping = (data) => {
-    const { userId } = data;
-
-    // Clear timeout if any
-    if (typingTimeouts.current[userId]) {
-      clearTimeout(typingTimeouts.current[userId]);
-      delete typingTimeouts.current[userId];
-    }
-
-    // Remove typing status
-    setTypingUsers((prev) => {
-      const updated = { ...prev };
-      delete updated[userId];
-      return updated;
-    });
-  };
-
-  const handleMessageRead = (messageId) => {
-    // Update message read status
-    setMessages((prev) => {
-      const updatedMessages = { ...prev };
-
-      // Find and update the message
-      Object.keys(updatedMessages).forEach((userId) => {
-        updatedMessages[userId] = updatedMessages[userId].map((msg) =>
-          msg._id === messageId ? { ...msg, read: true } : msg
-        );
-      });
-
-      return updatedMessages;
-    });
-  };
-
-  const handleOnlineUsers = (userIds) => {
-    setOnlineUsers(userIds);
-  };
-
-  const handleError = (errorMsg) => {
-    setError(errorMsg);
-  };
-
-  // Update conversation list with new message
-  const updateConversationWithMessage = (data) => {
-    const { message, sender } = data;
-
-    setConversations((prev) => {
-      // Find if conversation exists
-      const existingIndex = prev.findIndex(
-        (conv) => conv.user._id === sender._id
+    if (selectedUser) {
+      // Find the conversation for this user
+      const userConversation = conversations.find(
+        conv => conv.user?._id === selectedUser.id
       );
-
-      if (existingIndex >= 0) {
-        // Update existing conversation
-        const updated = [...prev];
-        updated[existingIndex] = {
-          ...updated[existingIndex],
-          lastMessage: message,
-          unreadCount:
-            selectedUser && selectedUser._id === sender._id
-              ? 0
-              : updated[existingIndex].unreadCount + 1,
-        };
-
-        // Move to top of list
-        const [conv] = updated.splice(existingIndex, 1);
-        updated.unshift(conv);
-
-        return updated;
+      
+      if (userConversation && userConversation.lastMessage) {
+        // For now, we only have the last message. In a real app, you would
+        // load the full message history for this conversation
+        setCurrentMessages(conversations);
       } else {
-        // Add new conversation
-        return [
-          {
-            user: sender,
-            lastMessage: message,
-            unreadCount: 1,
-          },
-          ...prev,
-        ];
+        setCurrentMessages([]);
       }
-    });
+    }
+  }, [selectedUser, conversations]);
+
+  // Send a new message
+  const sendMessage = async (recipientId, data) => {
+    try {
+      const response = await MessageServices.sendMessage(recipientId, data);
+      return response;
+    } catch (error) {
+      console.error("Error sending message:", error);
+      return null;
+    }
+  };
+
+  // Handle sending a new message
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !selectedUser) return;
+
+    // Prepare message data for API
+    const messageData = {
+      recipientId: selectedUser.id,
+      senderId: currentUser,
+      content: newMessage,
+    };
+
+    // Create a new message object for UI
+    const newMsg = {
+      _id: Date.now().toString(), // Temporary ID until we get response
+      sender: currentUser,
+      recipient: selectedUser.id,
+      content: newMessage,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Add to current messages immediately for responsive UI
+    setCurrentMessages(prev => [...prev, newMsg]);
+    
+    // Send to API
+    const response = await sendMessage(selectedUser.id, messageData);
+    
+    // If successful, update the message with server data
+    if (response) {
+      // You could update the message ID or other properties here
+      // For now we'll just refresh conversations
+      getConversations(selectedUser?.id);
+      console.log("heloo",selectedUser)
+
+    }
+
+    setNewMessage("");
   };
 
   // Handle user selection
-  const handleUserSelect = (conversation) => {
-    const user = conversation.user;
+  const handleUserSelect = (user) => {
     setSelectedUser(user);
-
-    // Fetch messages if not already loaded
-    if (!messages[user._id]) {
-      fetchMessages(user._id);
-    }
-
-    // Mark unread messages as read
-    if (conversation.unreadCount > 0) {
-      // Update unread count in conversation list
-      setConversations((prev) =>
-        prev.map((conv) =>
-          conv.user._id === user._id ? { ...conv, unreadCount: 0 } : conv
-        )
-      );
-
-      // Mark messages as read in backend
-      const userMessages = messages[user._id] || [];
-      userMessages
-        .filter((msg) => !msg.read && msg.sender === user._id)
-        .forEach((msg) => {
-          messageServices.current.markMessageAsRead(msg._id);
-        });
-    }
-
+     getConversations(selectedUser?.id);
     if (isMobile) {
       setDrawerOpen(false);
     }
   };
 
-  // Send a new message
-  const handleSendMessage = async () => {
-    if (!newMessage.trim() || !selectedUser) return;
-
-    try {
-      // Start sending animation/indicator if needed
-
-      // Send message via socket
-      const sentMessage = await messageServices.current.sendMessageSocket(
-        selectedUser._id,
-        newMessage.trim()
-      );
-
-      // Update local state
-      setMessages((prev) => ({
-        ...prev,
-        [selectedUser._id]: [...(prev[selectedUser._id] || []), sentMessage],
-      }));
-
-      // Update conversation list
-      updateLocalConversation(selectedUser._id, sentMessage);
-
-      // Clear input
-      setNewMessage("");
-    } catch (error) {
-      setError("Failed to send message. Try again.");
-      console.error(error);
-    }
-  };
-
-  // Update local conversation list with sent message
-  const updateLocalConversation = (userId, message) => {
-    setConversations((prev) => {
-      // Find if conversation exists
-      const existingIndex = prev.findIndex((conv) => conv.user._id === userId);
-
-      if (existingIndex >= 0) {
-        // Update existing conversation
-        const updated = [...prev];
-        updated[existingIndex] = {
-          ...updated[existingIndex],
-          lastMessage: message,
-        };
-
-        // Move to top of list
-        const [conv] = updated.splice(existingIndex, 1);
-        updated.unshift(conv);
-
-        return updated;
-      } else {
-        // Should not happen normally but handle just in case
-        return [
-          {
-            user: selectedUser,
-            lastMessage: message,
-            unreadCount: 0,
-          },
-          ...prev,
-        ];
-      }
-    });
-  };
-
-  // Handle message typing
-  const handleMessageTyping = (e) => {
-    setNewMessage(e.target.value);
-
-    if (selectedUser) {
-      messageServices.current.sendTypingStatus(selectedUser._id, true);
-    }
-  };
-
-  // Handle message input blur
-  const handleMessageBlur = () => {
-    if (selectedUser) {
-      messageServices.current.sendTypingStatus(selectedUser._id, false);
-    }
-  };
-
-  // Check if user is online
-  const isUserOnline = (userId) => {
-    return onlineUsers.includes(userId);
-  };
-
-  // Format timestamp
-  const formatMessageTime = (timestamp) => {
+  // Format timestamp for display
+  const formatTime = (timestamp) => {
     if (!timestamp) return "";
-
+    
     const date = new Date(timestamp);
-    const now = new Date();
-    const isToday = date.toDateString() === now.toDateString();
-
-    if (isToday) {
-      return date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } else {
-      return date.toLocaleDateString([], { month: "short", day: "numeric" });
-    }
+    return date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   // Render the chat area
@@ -430,9 +248,6 @@ const Message = ({ height = 820, width = "100%" }) => {
       );
     }
 
-    const userMessages = messages[selectedUser._id] || [];
-    const isTyping = typingUsers[selectedUser._id];
-
     return (
       <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
         {/* Chat header */}
@@ -444,35 +259,20 @@ const Message = ({ height = 820, width = "100%" }) => {
                 sx={{ mr: 1 }}
                 onClick={() => setDrawerOpen(true)}
               >
-                <ArrowBackIcon />
+                <ArrowBackIcon /> 
               </IconButton>
             )}
             <ListItemAvatar>
-              <Avatar src={selectedUser.avatar} alt={selectedUser.username} />
+              <Avatar src={selectedUser.avatar} alt={selectedUser.name} />
             </ListItemAvatar>
             <Box sx={{ flexGrow: 1 }}>
               <Typography variant="subtitle1" component="div">
-                {selectedUser.username}
+                {selectedUser.name}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {isUserOnline(selectedUser._id) ? (
-                  <Box component="span" sx={{ color: "success.main" }}>
-                    ● Online
-                  </Box>
-                ) : (
-                  "Offline"
-                )}
+              <Typography variant="caption" color="text.secondary">
+                {selectedUser.lastSeen}
               </Typography>
             </Box>
-            <IconButton>
-              <PhoneIcon />
-            </IconButton>
-            <IconButton>
-              <VideocamIcon />
-            </IconButton>
-            <IconButton>
-              <MoreVertIcon />
-            </IconButton>
           </Toolbar>
         </AppBar>
 
@@ -487,16 +287,14 @@ const Message = ({ height = 820, width = "100%" }) => {
             flexDirection: "column",
           }}
         >
-          {userMessages.map((message) => (
+          {currentMessages.map((message) => (
             <Box
+            onClick={()=>{console.log(currentMessages)}} 
               key={message._id}
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems:
-                  message.sender !== selectedUser._id
-                    ? "flex-end"
-                    : "flex-start",
+                alignItems: message?.user?._id === currentUser ? "flex-end" : "flex-start",
                 mb: 2,
               }}
             >
@@ -505,53 +303,21 @@ const Message = ({ height = 820, width = "100%" }) => {
                 sx={{
                   p: 2,
                   maxWidth: "70%",
-                  bgcolor:
-                    message.sender !== selectedUser._id ? "#e3f2fd" : "white",
+                  bgcolor: message?.user?._id  === currentUser ? "#e3f2fd" : "white",
                   borderRadius: 2,
                 }}
               >
-                <Typography variant="body1">{message.content}</Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mt: 0.5,
-                  }}
+                <Typography variant="body1">{message?.lastMessage?.content}</Typography>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: "block", mt: 0.5 }}
                 >
-                  <Typography variant="caption" color="text.secondary">
-                    {formatMessageTime(message.timestamp)}
-                  </Typography>
-                  {message.sender !== selectedUser._id && (
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                      sx={{ ml: 2 }}
-                    >
-                      {message.read ? "✓✓" : "✓"}
-                    </Typography>
-                  )}
-                </Box>
-              </Paper>
-            </Box>
-          ))}
-
-          {/* Typing indicator */}
-          {isTyping && (
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-              <Paper
-                elevation={1}
-                sx={{ p: 1.5, borderRadius: 2, bgcolor: "rgba(0,0,0,0.05)" }}
-              >
-                <Typography variant="body2" color="text.secondary">
-                  {isTyping} is typing...
+                  {formatTime(message?.lastMessage?.timestamp)}
                 </Typography>
               </Paper>
             </Box>
-          )}
-
-          {/* Auto-scroll anchor */}
-          <div ref={messageEndRef} />
+          ))}
         </Box>
 
         {/* Message input */}
@@ -561,17 +327,9 @@ const Message = ({ height = 820, width = "100%" }) => {
             placeholder="Type a message"
             variant="outlined"
             value={newMessage}
-            onChange={handleMessageTyping}
-            onBlur={handleMessageBlur}
+            onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
             InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <IconButton>
-                    <AttachFileIcon />
-                  </IconButton>
-                </InputAdornment>
-              ),
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
@@ -600,25 +358,8 @@ const Message = ({ height = 820, width = "100%" }) => {
         maxWidth: "100%",
         overflow: "hidden",
         m: 0,
-        mt: 3,
       }}
     >
-      {/* Error message */}
-      <Snackbar
-        open={!!error}
-        autoHideDuration={6000}
-        onClose={() => setError(null)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setError(null)}
-          severity="error"
-          sx={{ width: "100%" }}
-        >
-          {error}
-        </Alert>
-      </Snackbar>
-
       {/* Users list drawer */}
       <Drawer
         variant={isMobile ? "temporary" : "permanent"}
@@ -659,73 +400,30 @@ const Message = ({ height = 820, width = "100%" }) => {
         <Divider />
 
         <List sx={{ overflow: "auto", flexGrow: 1 }}>
-          {isLoading ? (
-            <Box sx={{ p: 3, textAlign: "center" }}>
-              <Typography>Loading conversations...</Typography>
-            </Box>
-          ) : filteredConversations.length === 0 ? (
-            <Box sx={{ p: 3, textAlign: "center" }}>
-              <Typography>No conversations found</Typography>
-            </Box>
-          ) : (
-            filteredConversations.map((conversation) => (
-              <React.Fragment key={conversation.user._id}>
-                <ListItem
-                  button
-                  selected={
-                    selectedUser && selectedUser._id === conversation.user._id
-                  }
-                  onClick={() => handleUserSelect(conversation)}
-                >
-                  <ListItemAvatar>
-                    <Badge
-                      color="error"
-                      badgeContent={conversation.unreadCount}
-                      invisible={conversation.unreadCount === 0}
-                    >
-                      <Avatar
-                        src={conversation.user.avatar}
-                        alt={conversation.user.username}
-                      />
-                    </Badge>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={conversation.user.username}
-                    secondary={
-                      <Typography variant="body2" color="text.secondary" noWrap>
-                        {conversation.lastMessage
-                          ? conversation.lastMessage.content
-                          : "No messages yet"}
-                      </Typography>
-                    }
-                  />
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-end",
-                    }}
+          {filteredUsers.map((user) => (
+            <React.Fragment key={user.id}>
+              <ListItem
+                button
+                selected={selectedUser && selectedUser.id === user.id}
+                onClick={() => handleUserSelect(user)}
+              >
+                <ListItemAvatar>
+                  <Badge
+                    color="error"
+                    badgeContent={user.unread}
+                    invisible={user.unread === 0}
                   >
-                    <Typography variant="caption" color="text.secondary">
-                      {conversation.lastMessage
-                        ? formatMessageTime(conversation.lastMessage.timestamp)
-                        : ""}
-                    </Typography>
-                    <Typography variant="caption" sx={{ mt: 0.5 }}>
-                      {isUserOnline(conversation.user._id) ? (
-                        <Box component="span" sx={{ color: "success.main" }}>
-                          ● Online
-                        </Box>
-                      ) : (
-                        ""
-                      )}
-                    </Typography>
-                  </Box>
-                </ListItem>
-                <Divider component="li" />
-              </React.Fragment>
-            ))
-          )}
+                    <Avatar src={user.avatar} alt={user.name} />
+                  </Badge>
+                </ListItemAvatar>
+                <ListItemText 
+                  primary={user.name} 
+                  secondary={user.lastMessage?.content || "No messages yet"}
+                />
+              </ListItem>
+              <Divider component="li" />
+            </React.Fragment>
+          ))}
         </List>
       </Drawer>
 
@@ -765,4 +463,4 @@ const Message = ({ height = 820, width = "100%" }) => {
   );
 };
 
-export default Message;
+export default MessageApp;
