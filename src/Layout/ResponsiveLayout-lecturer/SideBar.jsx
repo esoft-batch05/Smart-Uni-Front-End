@@ -47,6 +47,8 @@ import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import SchoolIcon from "@mui/icons-material/School";
 import EventIcon from "@mui/icons-material/Event";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import MapIcon from '@mui/icons-material/Map';
+
 
 // Define constants
 const DRAWER_WIDTH = 200;
@@ -180,7 +182,7 @@ const ImprovedLayout = () => {
   ];
 
   const shortcutsItems = [
-    { text: "Tasks", icon: <TasksIcon />, path: "/tasks" },
+    { text: "Map", icon: <MapIcon />, path: "/map" },
     { text: "Inbox", icon: <MessagesIcon />, path: `/${userRole}-message` },
     { text: "Shop", icon: <ShoppingCartIcon />, path: "/" },
     { text: "Settings", icon: <SettingsIcon />, path: `/${userRole}-settings` },

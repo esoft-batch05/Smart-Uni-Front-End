@@ -92,7 +92,7 @@ function Router() {
         { path: "/admin-resources", element: <Resource /> }, 
         { path: "/admin-settings", element: <SettingPage /> }, 
         { path: "/admin-message", element: <Message /> },
-        { path: "/tasks", element: <CampusMapExample /> },
+        { path: "/map", element: <CampusMapExample /> },
 
         
       ],

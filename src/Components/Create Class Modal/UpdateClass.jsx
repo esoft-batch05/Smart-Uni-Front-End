@@ -26,18 +26,17 @@ const UpdateCourseModal = ({
   fetchClasses,
   instructors,
   classes,
+  venues,
 }) => {
   const userRole = useSelector((state) => state.user?.role);
-  // Parse the initial schedule time or use current date/time as fallback
+
   const parseInitialDateTime = () => {
     if (classes?.schedule?.day && classes?.schedule?.time) {
-      // Extract just the start time from the time range (e.g. "02:00 PM - 04:00 PM" → "02:00 PM")
       const startTime = classes.schedule.time.split('-')[0].trim();
-      // Combine day and time and parse with dayjs
       const dateTimeStr = `${classes.schedule.day} ${startTime}`;
       return dayjs(dateTimeStr, "dddd hh:mm A");
     }
-    return dayjs(); // Default to current date/time
+    return dayjs();
   };
 
   const [dateTimeValue, setDateTimeValue] = useState(parseInitialDateTime());
@@ -49,21 +48,21 @@ const UpdateCourseModal = ({
       day: classes?.schedule?.day || "", 
       time: classes?.schedule?.time || "" 
     },
+    venue: classes.venue?._id || "",
     status: classes.status || "Active",
   });
 
   const handleSubmit = () => {
-    console.log("Updated course:", classes);
-     createClass(classes?._id, course);
-    // fetchClasses();
+    createClass(classes?._id, course);
+    fetchClasses();
   };
 
   const handleScheduleChange = (newValue) => {
     if (newValue) {
       setDateTimeValue(newValue);
       
-      const formattedDay = newValue.format("dddd"); // Get day (e.g., "Friday")
-      const formattedTime = newValue.format("hh:mm A"); // Get time (e.g., "2:00 PM")
+      const formattedDay = newValue.format("dddd");
+      const formattedTime = newValue.format("hh:mm A");
       
       setCourse((prev) => ({
         ...prev,
@@ -83,11 +82,11 @@ const UpdateCourseModal = ({
   const createClass = async (id, data) => {
     showLoading();
     try {
-      const response = await ClassServices.updateClass(id,data);
+      await ClassServices.updateClass(id, data);
       showAlert("success", "Class Updated!");
       fetchClasses();
     } catch (error) {
-      showAlert("error", "something went wrong!");
+      showAlert("error", "Something went wrong!");
       console.error(error);
     } finally {
       hideLoading();
@@ -96,10 +95,10 @@ const UpdateCourseModal = ({
         name: "",
         instructor: "",
         schedule: { day: "", time: "" },
+        venue: "",
         status: "Active",
       });
       setDateTimeValue(dayjs());
-      
     }
   };
 
@@ -138,6 +137,24 @@ const UpdateCourseModal = ({
             </FormControl>
           </Grid>
           <Grid item xs={12}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Venue</InputLabel>
+              <Select
+                name="venue"
+                value={course.venue}
+                onChange={handleInputChange}
+                label="Venue"
+              >
+                {Array.isArray(venues) &&
+                  venues.map((venue, index) => (
+                    <MenuItem key={index} value={venue?._id}>
+                      {venue?.name}
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
                 label="Schedule"
@@ -169,11 +186,7 @@ const UpdateCourseModal = ({
         <Button onClick={onClose} variant="outlined" color="secondary">
           Cancel
         </Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          color="primary"
-        >
+        <Button onClick={handleSubmit} variant="contained" color="primary">
           Update Course
         </Button>
       </DialogActions>

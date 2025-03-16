@@ -19,7 +19,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import UpdateCourseModal from "../Create Class Modal/UpdateClass";
 import { useSelector } from "react-redux";
 
-const ClassCard = ({ classes, onEventDeleted, instructors, fetchClasses }) => {
+const ClassCard = ({ classes, onEventDeleted, instructors, fetchClasses, venues }) => {
   const [openModal, setOpenModal] = useState(false);
   const userRole = useSelector((state) => state.user?.role);
 
@@ -188,6 +188,7 @@ const ClassCard = ({ classes, onEventDeleted, instructors, fetchClasses }) => {
             classes={classes}
             instructors={instructors}
             fetchClasses={fetchClasses}
+            venues={venues}
           />
 
           <Grid item xs={12} sm={6}>

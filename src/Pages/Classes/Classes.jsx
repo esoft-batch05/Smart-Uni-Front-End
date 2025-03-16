@@ -84,18 +84,18 @@ function Classes() {
     }
   };
 
-  const getInstructors =async () => {
-    try{
+  const getInstructors = async () => {
+    try {
       const response = await UserServices.getLecturer();
       setLecturers(response?.data?.data);
-    }catch(error){
+    } catch (error) {
       console.log(error);
     }
-  }
+  };
 
-  useEffect(()=>{
+  useEffect(() => {
     getInstructors();
-  },[])
+  }, []);
 
   const handleViewProposal = async (id) => {
     const proposalUrl = `http://localhost:5000/api/file/${id}`;
@@ -118,8 +118,6 @@ function Classes() {
     getEvents();
   }, []);
 
-  
-
   const fetchClasses = async () => {
     showLoading("Fetching classes...");
     try {
@@ -136,7 +134,6 @@ function Classes() {
 
   const handleEventDeleted = (id) => {
     deleteClasses(id);
-   
   };
 
   const deleteClasses = async (id) => {
@@ -321,13 +318,26 @@ function Classes() {
       <Grid container spacing={3} mt={3}>
         {sortedClasses.map((classes, index) => (
           <Grid item xs={12} sm={6} md={12} key={index}>
-            <ClassCard fetchClasses={fetchClasses} instructors={lecturers} classes={classes} onEventDeleted={handleEventDeleted} />
+            <ClassCard
+              venues={venues}
+              fetchClasses={fetchClasses}
+              instructors={lecturers}
+              classes={classes}
+              onEventDeleted={handleEventDeleted}
+            />
           </Grid>
         ))}
       </Grid>
 
       {/* Create Event Modal */}
-      <CreateClass fetchClasses={fetchClasses} instructors={lecturers} open={openModal} onClose={handleModalClose} fetch={fetchClasses} />
+      <CreateClass
+        venues={venues}
+        fetchClasses={fetchClasses}
+        instructors={lecturers}
+        open={openModal}
+        onClose={handleModalClose}
+        fetch={fetchClasses}
+      />
     </Box>
   );
 }

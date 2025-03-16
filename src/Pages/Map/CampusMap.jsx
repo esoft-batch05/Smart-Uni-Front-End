@@ -183,6 +183,7 @@ const CampusMap = ({ events = [] }) => {
 
   const handleBuildingClick = (building) => {
     setSelectedBuilding(building);
+    console.log(building)
   };
 
   // Get events for a specific building
