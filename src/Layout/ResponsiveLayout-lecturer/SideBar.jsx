@@ -184,7 +184,7 @@ const ImprovedLayout = () => {
   const shortcutsItems = [
     { text: "Map", icon: <MapIcon />, path: "/map" },
     { text: "Inbox", icon: <MessagesIcon />, path: `/${userRole}-message` },
-    { text: "Shop", icon: <ShoppingCartIcon />, path: "/" },
+    { text: "Shop", icon: <ShoppingCartIcon />, path: "/shop" },
     { text: "Settings", icon: <SettingsIcon />, path: `/${userRole}-settings` },
   ];
 

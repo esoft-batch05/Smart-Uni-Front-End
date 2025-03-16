@@ -16,6 +16,7 @@ import Message from "../Pages/Message/Message";
 import CampusMapExample from "../Pages/Tasks/Tasks";
 import Library from "../Pages/Library/Library";
 import Classes from "../Pages/Classes/Classes";
+import Shop from "../Pages/Shop/Shop";
 
 function Router() {
   const routes = useRoutes([
@@ -52,6 +53,7 @@ function Router() {
         { path: "/lecturer-settings", element: <SettingPage /> },
         { path: "/lecturer-message", element: <Message /> },
         { path: "/tasks", element: <CampusMapExample /> },
+        { path: "/shop", element: <Shop /> },
       ],
     },
     {
@@ -72,6 +74,7 @@ function Router() {
         { path: "/student-settings", element: <SettingPage /> }, 
         { path: "/student-message", element: <Message /> },
         { path: "/tasks", element: <CampusMapExample /> },
+        { path: "/shop", element: <Shop /> },
       
       ],
     },
@@ -93,6 +96,7 @@ function Router() {
         { path: "/admin-settings", element: <SettingPage /> }, 
         { path: "/admin-message", element: <Message /> },
         { path: "/map", element: <CampusMapExample /> },
+        { path: "/shop", element: <Shop /> },
 
         
       ],
