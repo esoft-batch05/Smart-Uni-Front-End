@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -20,46 +20,57 @@ import dayjs from "dayjs";
 import { hideLoading, showLoading } from "../../Utils/loadingUtils";
 import { useSelector } from "react-redux";
 
-const CourseModal = ({ open, onClose, fetchClasses, instructors }) => {
+const UpdateCourseModal = ({
+  open,
+  onClose,
+  fetchClasses,
+  instructors,
+  classes,
+}) => {
   const userRole = useSelector((state) => state.user?.role);
+  // Parse the initial schedule time or use current date/time as fallback
+  const parseInitialDateTime = () => {
+    if (classes?.schedule?.day && classes?.schedule?.time) {
+      // Extract just the start time from the time range (e.g. "02:00 PM - 04:00 PM" → "02:00 PM")
+      const startTime = classes.schedule.time.split('-')[0].trim();
+      // Combine day and time and parse with dayjs
+      const dateTimeStr = `${classes.schedule.day} ${startTime}`;
+      return dayjs(dateTimeStr, "dddd hh:mm A");
+    }
+    return dayjs(); // Default to current date/time
+  };
+
+  const [dateTimeValue, setDateTimeValue] = useState(parseInitialDateTime());
+
   const [course, setCourse] = useState({
-    name: "",
-    instructor: "",
-    schedule: { day: "", time: "" },
-    status: "Active",
+    name: classes.name || "",
+    instructor: classes.instructor?._id || "",
+    schedule: { 
+      day: classes?.schedule?.day || "", 
+      time: classes?.schedule?.time || "" 
+    },
+    status: classes.status || "Active",
   });
-  
-  // Add a separate state to track the selected date/time
-  const [selectedDateTime, setSelectedDateTime] = useState(null);
 
   const handleSubmit = () => {
-    createClass(course);
-    fetchClasses();
+    console.log("Updated course:", classes);
+     createClass(classes?._id, course);
+    // fetchClasses();
   };
 
   const handleScheduleChange = (newValue) => {
     if (newValue) {
-      // Store the selected date/time
-      setSelectedDateTime(newValue);
+      setDateTimeValue(newValue);
       
-      const formattedDay = dayjs(newValue).format("dddd"); // Get full day name (e.g., "Friday")
-      const formattedTime = dayjs(newValue).format("hh:mm A"); // Get time in 12-hour format
-
+      const formattedDay = newValue.format("dddd"); // Get day (e.g., "Friday")
+      const formattedTime = newValue.format("hh:mm A"); // Get time (e.g., "2:00 PM")
+      
       setCourse((prev) => ({
         ...prev,
         schedule: {
           day: formattedDay,
-          time: `${formattedTime} - ${dayjs(newValue)
-            .add(2, "hour")
-            .format("hh:mm A")}`, // Example: "2:00 PM - 4:00 PM"
+          time: `${formattedTime} - ${newValue.add(2, "hour").format("hh:mm A")}`,
         },
-      }));
-    } else {
-      // Handle clearing the date
-      setSelectedDateTime(null);
-      setCourse((prev) => ({
-        ...prev,
-        schedule: { day: "", time: "" },
       }));
     }
   };
@@ -69,31 +80,32 @@ const CourseModal = ({ open, onClose, fetchClasses, instructors }) => {
     setCourse((prev) => ({ ...prev, [name]: value }));
   };
 
-  const createClass = async (data) => {
+  const createClass = async (id, data) => {
     showLoading();
     try {
-      const response = await ClassServices.createClass(data);
-      showAlert("success", "Class Created!");
+      const response = await ClassServices.updateClass(id,data);
+      showAlert("success", "Class Updated!");
+      fetchClasses();
     } catch (error) {
       showAlert("error", "something went wrong!");
       console.error(error);
     } finally {
       hideLoading();
       onClose();
-      // Reset form state
       setCourse({
         name: "",
         instructor: "",
         schedule: { day: "", time: "" },
         status: "Active",
       });
-      setSelectedDateTime(null);
+      setDateTimeValue(dayjs());
+      
     }
   };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Create New Class</DialogTitle>
+      <DialogTitle>Update Course</DialogTitle>
       <DialogContent>
         <Grid container spacing={2} p={2}>
           <Grid item xs={12}>
@@ -129,17 +141,9 @@ const CourseModal = ({ open, onClose, fetchClasses, instructors }) => {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DateTimePicker
                 label="Schedule"
-                value={selectedDateTime}
+                value={dateTimeValue}
                 onChange={handleScheduleChange}
-                slotProps={{ 
-                  textField: { 
-                    fullWidth: true, 
-                    size: "small",
-                    helperText: course.schedule.day && course.schedule.time ? 
-                      `${course.schedule.day}, ${course.schedule.time}` : 
-                      "Select date and time"
-                  } 
-                }}
+                slotProps={{ textField: { fullWidth: true, size: "small" } }}
               />
             </LocalizationProvider>
           </Grid>
@@ -166,15 +170,15 @@ const CourseModal = ({ open, onClose, fetchClasses, instructors }) => {
           Cancel
         </Button>
         <Button
-          onClick={() => handleSubmit(course)}
+          onClick={handleSubmit}
           variant="contained"
           color="primary"
         >
-          Create Course
+          Update Course
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default CourseModal;
+export default UpdateCourseModal;

@@ -32,14 +32,14 @@ import { showAlert } from "../../Utils/alertUtils";
 import { Email, Message, Chat } from "@mui/icons-material";
 import VenueServices from "../../Services/VenueService";
 
-const EventCard = ({ event, onEventDeleted }) => {
+const EventCard = ({ event, onEventDeleted, venues }) => {
   const { name, date, venue, image, _id } = event;
   const userRole = useSelector((state) => state.user?.role);
   const userId = useSelector((state) => state.user?._id);
 
   const [openModal, setOpenModal] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
-    const [venues, setVenues] = useState([]);
+    // const [venues, setVenues] = useState([]);
   const [participants, setParticipants] = useState([event?.attendees]);
   const [eventToDelete, setEventToDelete] = useState(null);
   const [openAttendeesModal, setOpenAttendeesModal] = useState(false);
@@ -48,21 +48,21 @@ const EventCard = ({ event, onEventDeleted }) => {
     setOpenAttendeesModal(false);
   };
 
-  useEffect(() => {
-      const getEvents = async () => {
-        showLoading("Fetching Events...");
-        try {
-          const response = await VenueServices.getAllVenue();
-          setVenues(response?.data);
-          return response?.data;
-        } catch (error) {
-          showAlert("error", "Something went wrong!");
-        } finally {
-          hideLoading();
-        }
-      };
-      getEvents();
-    }, []);
+  // useEffect(() => {
+  //     const getEvents = async () => {
+  //       showLoading("Fetching Events...");
+  //       try {
+  //         const response = await VenueServices.getAllVenue();
+  //         setVenues(response?.data);
+  //         return response?.data;
+  //       } catch (error) {
+  //         showAlert("error", "Something went wrong!");
+  //       } finally {
+  //         hideLoading();
+  //       }
+  //     };
+  //     getEvents();
+  //   }, []);
 
   useEffect(() => {
     setParticipants(event?.attendees);

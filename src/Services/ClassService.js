@@ -22,6 +22,22 @@ class ClassServices {
             throw error.response ? error.response.data : error;
         }
     }
+    static async createClass(data) {
+        try {
+            const response = await post(`/class/createClass`, data);
+            return response.data;
+        } catch (error) {
+            throw error.response ? error.response.data : error;
+        }
+    }
+    static async updateClass(id,data) {
+        try {
+            const response = await post(`/class/updateClass/${id}`, data);
+            return response.data;
+        } catch (error) {
+            throw error.response ? error.response.data : error;
+        }
+    }
 
     
     

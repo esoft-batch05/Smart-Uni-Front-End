@@ -400,7 +400,7 @@ function Event() {
       <Grid container spacing={3} mt={3}>
         {sortedEvents.map((event, index) => (
           <Grid item xs={12} sm={6} md={12} key={index}>
-            <EventCard event={event} onEventDeleted={handleEventDeleted} />
+            <EventCard event={event} venues={venues} onEventDeleted={handleEventDeleted} />
           </Grid>
         ))}
       </Grid>

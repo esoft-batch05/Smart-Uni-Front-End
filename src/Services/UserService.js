@@ -59,6 +59,16 @@ class UserServices {
 
         }
     }
+    static async getLecturer() {
+        try {
+            const response = await get(`/user/getAllLecturers`);
+            return response;
+
+        } catch (error) {
+            throw e.response ? e.response.data : e;
+
+        }
+    }
 }
 
 export default UserServices;

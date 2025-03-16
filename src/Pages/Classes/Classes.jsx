@@ -36,12 +36,14 @@ import MessageServices from "../../Services/MessageService";
 import CreateClass from "../../Components/Create Class Modal/CreateClass";
 import ClassCard from "../../Components/Class Card/ClassCard";
 import ClassServices from "../../Services/ClassService";
+import UserServices from "../../Services/UserService";
 
 function Classes() {
   const userRole = useSelector((state) => state.user?.role);
   const [classes, setClasses] = useState([]);
   const [attendees, setAttendees] = useState([]);
   const [venues, setVenues] = useState([]);
+  const [lecturers, setLecturers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSort, setSelectedSort] = useState("");
@@ -82,19 +84,18 @@ function Classes() {
     }
   };
 
-  const handleApprove = async (id) => {
-    showLoading("Event is Approving...");
-    try {
-      const response = await EventServices.approveEvent(id);
-      showAlert("success", "Event is Approved!");
-      pendingEvents();
-      fetchClasses();
-    } catch (error) {
-      showAlert("error", "Something went wrong!");
-    } finally {
-      hideLoading();
+  const getInstructors =async () => {
+    try{
+      const response = await UserServices.getLecturer();
+      setLecturers(response?.data?.data);
+    }catch(error){
+      console.log(error);
     }
-  };
+  }
+
+  useEffect(()=>{
+    getInstructors();
+  },[])
 
   const handleViewProposal = async (id) => {
     const proposalUrl = `http://localhost:5000/api/file/${id}`;
@@ -117,26 +118,7 @@ function Classes() {
     getEvents();
   }, []);
 
-  const handleFormSubmit = async () => {
-    showLoading("Event is Creating...");
-    try {
-      const response = await EventServices.createEvent(newEvent);
-      if (response?.data?.status === "approved") {
-        showAlert("success", "Event Created!");
-        setOpenModal(false);
-      } else if (response?.data?.status === "pending") {
-        showAlert(
-          "success",
-          "Your event is under review and approval is pending. It will be approved within 24 hours after review."
-        );
-        setOpenModal(false);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      hideLoading();
-    }
-  };
+  
 
   const fetchClasses = async () => {
     showLoading("Fetching classes...");
@@ -339,13 +321,13 @@ function Classes() {
       <Grid container spacing={3} mt={3}>
         {sortedClasses.map((classes, index) => (
           <Grid item xs={12} sm={6} md={12} key={index}>
-            <ClassCard classes={classes} onEventDeleted={handleEventDeleted} />
+            <ClassCard fetchClasses={fetchClasses} instructors={lecturers} classes={classes} onEventDeleted={handleEventDeleted} />
           </Grid>
         ))}
       </Grid>
 
       {/* Create Event Modal */}
-      <CreateClass open={openModal} onClose={handleModalClose} />
+      <CreateClass fetchClasses={fetchClasses} instructors={lecturers} open={openModal} onClose={handleModalClose} fetch={fetchClasses} />
     </Box>
   );
 }
