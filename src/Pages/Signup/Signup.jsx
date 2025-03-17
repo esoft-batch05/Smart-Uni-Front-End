@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
   Box,
@@ -23,52 +23,105 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import Image from "../../assets/Images/Group 1000002553.jpg";
-import UserServices from '../../Services/UserService';
+import UserServices from "../../Services/UserService";
 import { showAlert } from "../../Utils/alertUtils";
-import { showLoading, hideLoading } from '../../Utils/loadingUtils';
+import { showLoading, hideLoading } from "../../Utils/loadingUtils";
 import { useNavigate } from "react-router-dom";
-
+import EmailServices from "../../Services/EmailService";
+import { useSelector } from "react-redux";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = React.useState(false);
-  
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const [mail, setMail] = React.useState('');
+  const userEmail = useSelector((state) => state.user?.email);
 
   const {
     control,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm({
     defaultValues: {
       firstName: "",
+      lastName: "",
       email: "",
       password: "",
+      confirmPassword: "",
       phoneNumber: "",
       dateOfBirth: null,
       role: "",
     },
   });
 
-    const navigate = useNavigate();
-  
+  // Use watch to get the password value for validation
+  const password = watch("password");
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    if (mail) {
+      sendEmail({
+        to: mail,
+        subject: "🎉 Welcome to Our Platform! Your Registration is Successful 🎉",
+        text: "Your registration is successful!", // Plain text fallback
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f4f4f4; border-radius: 10px;">
+            <div style="background-color: #007bff; color: white; text-align: center; padding: 15px; border-radius: 10px 10px 0 0;">
+              <h2>Welcome to Our Platform! 🎉</h2>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 0 0 10px 10px;">
+              <p>Dear User,</p>
+              <p>We're excited to welcome you! Your registration was successful, and your account is now active. 🎊</p>
+              <h3 style="color: #007bff;">Next Steps:</h3>
+              <ul>
+                <li>🎯 <strong>Login</strong>: <a href="https://yourwebsite.com/login" style="color: #007bff; text-decoration: none;">Click here to log in</a></li>
+                <li>📖 <strong>Explore</strong>: Discover features, interact, and enjoy your journey.</li>
+                <li>📩 <strong>Support</strong>: Need help? Contact us anytime.</li>
+              </ul>
+              <p>Thank you for joining us! If you have any questions, feel free to reply to this email.</p>
+              <p>Best Regards,<br><strong>Your Company Name</strong></p>
+            </div>
+          </div>
+        `,
+      });
+      
+    }
+  }, [mail]); 
+  
   const register = async (data) => {
-    showLoading('Creating account...');
-    try{
-      const response = await UserServices.userRegister(data);
+    // Remove confirmPassword from data before sending to API
+    const { confirmPassword, ...registerData } = data;
+    
+    showLoading("Creating account...");
+    try {
+      const response = await UserServices.userRegister(registerData);
       console.log(response);
-      navigate('/login');
-      showAlert('success', 'Registration successful!');
-    }catch(err){
-      showAlert('error', 'Registration Failed!');
+      
+      setMail(response?.data?.email);
+      
+       
+      showAlert("success", "Registration successful!");
+    } catch (err) {
+      showAlert("error", "Registration Failed!");
       console.log(err);
-    }finally{
+    } finally {
       hideLoading();
     }
-  }
+  };
 
   const onSubmit = (data) => {
     console.log(data);
     register(data);
+    
+  };
+
+  const sendEmail = async (data) => {
+    try{
+      const response = EmailServices.sendEmail(data);
+      navigate("/login");
+    }catch(error){
+      console.log(error);
+    }
   };
 
   return (
@@ -111,36 +164,96 @@ const SignUp = () => {
             item
             xs={12}
             md={6}
-            sx={{ display: "flex", alignItems: "center", justifyContent: "center", p: 4 }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              p: 4,
+            }}
           >
             <Card sx={{ maxWidth: 500, width: "100%", boxShadow: 3 }}>
               <CardContent>
-                <Typography variant="h4" fontWeight="bold" textAlign="center" mb={3}>
+                <Typography
+                  variant="h4"
+                  fontWeight="bold"
+                  textAlign="center"
+                  mb={3}
+                >
                   WELCOME
                 </Typography>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                  <Controller
-                    name="firstName"
-                    control={control}
-                    rules={{ required: "Name is required" }}
-                    render={({ field }) => (
-                      <TextField {...field} fullWidth label="Name" margin="normal" variant="outlined" error={!!errors.name} helperText={errors.name?.message} />
-                    )}
-                  />
+                  <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                      <Controller
+                        name="firstName"
+                        control={control}
+                        rules={{ required: "First Name is required" }}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            fullWidth
+                            label="First Name"
+                            margin="normal"
+                            variant="outlined"
+                            error={!!errors.firstName}
+                            helperText={errors.firstName?.message}
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Controller
+                        name="lastName"
+                        control={control}
+                        rules={{ required: "Last Name is required" }}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            fullWidth
+                            label="Last Name"
+                            margin="normal"
+                            variant="outlined"
+                            error={!!errors.lastName}
+                            helperText={errors.lastName?.message}
+                          />
+                        )}
+                      />
+                    </Grid>
+                  </Grid>
 
                   <Controller
                     name="email"
                     control={control}
-                    rules={{ required: "Email is required" }}
+                    rules={{ 
+                      required: "Email is required",
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                        message: "Invalid email address"
+                      }
+                    }}
                     render={({ field }) => (
-                      <TextField {...field} fullWidth label="Email" margin="normal" variant="outlined" error={!!errors.email} helperText={errors.email?.message} />
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Email"
+                        margin="normal"
+                        variant="outlined"
+                        error={!!errors.email}
+                        helperText={errors.email?.message}
+                      />
                     )}
                   />
 
                   <Controller
                     name="password"
                     control={control}
-                    rules={{ required: "Password is required" }}
+                    rules={{ 
+                      required: "Password is required",
+                      minLength: {
+                        value: 8,
+                        message: "Password must be at least 8 characters"
+                      }
+                    }}
                     render={({ field }) => (
                       <TextField
                         {...field}
@@ -154,8 +267,51 @@ const SignUp = () => {
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">
-                              <IconButton onClick={() => setShowPassword(!showPassword)}>
-                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                              <IconButton
+                                onClick={() => setShowPassword(!showPassword)}
+                              >
+                                {showPassword ? (
+                                  <VisibilityOff />
+                                ) : (
+                                  <Visibility />
+                                )}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+
+                  <Controller
+                    name="confirmPassword"
+                    control={control}
+                    rules={{ 
+                      required: "Please confirm your password",
+                      validate: value => 
+                        value === password || "Passwords do not match"
+                    }}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Confirm Password"
+                        margin="normal"
+                        variant="outlined"
+                        type={showConfirmPassword ? "text" : "password"}
+                        error={!!errors.confirmPassword}
+                        helperText={errors.confirmPassword?.message}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              >
+                                {showConfirmPassword ? (
+                                  <VisibilityOff />
+                                ) : (
+                                  <Visibility />
+                                )}
                               </IconButton>
                             </InputAdornment>
                           ),
@@ -169,7 +325,15 @@ const SignUp = () => {
                     control={control}
                     rules={{ required: "Phone number is required" }}
                     render={({ field }) => (
-                      <TextField {...field} fullWidth label="Phone Number" margin="normal" variant="outlined" error={!!errors.phone} helperText={errors.phone?.message} />
+                      <TextField
+                        {...field}
+                        fullWidth
+                        label="Phone Number"
+                        margin="normal"
+                        variant="outlined"
+                        error={!!errors.phoneNumber}
+                        helperText={errors.phoneNumber?.message}
+                      />
                     )}
                   />
 
@@ -184,7 +348,13 @@ const SignUp = () => {
                           value={field.value}
                           onChange={field.onChange}
                           slotProps={{
-                            textField: { fullWidth: true, margin: "normal", variant: "outlined", error: !!errors.dateOfBirth, helperText: errors.dateOfBirth?.message },
+                            textField: {
+                              fullWidth: true,
+                              margin: "normal",
+                              variant: "outlined",
+                              error: !!errors.dateOfBirth,
+                              helperText: errors.dateOfBirth?.message,
+                            },
                           }}
                         />
                       )}
@@ -196,22 +366,38 @@ const SignUp = () => {
                     control={control}
                     rules={{ required: "Role is required" }}
                     render={({ field }) => (
-                      <FormControl fullWidth margin="normal" error={!!errors.role}>
+                      <FormControl
+                        fullWidth
+                        margin="normal"
+                        error={!!errors.role}
+                      >
                         <InputLabel>Role</InputLabel>
                         <Select {...field} label="Role">
-                          <MenuItem value="lecturer">I'm a Student</MenuItem>
-                          <MenuItem value="student">I'm a Lecturer</MenuItem>
+                          <MenuItem value="student">I'm a Student</MenuItem>
+                          <MenuItem value="lecturer">I'm a Lecturer</MenuItem>
                         </Select>
                       </FormControl>
                     )}
                   />
 
-                  <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, bgcolor: "#FF8C00", "&:hover": { bgcolor: "#E67E00" } }}>
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{
+                      mt: 3,
+                      bgcolor: "#FF8C00",
+                      "&:hover": { bgcolor: "#E67E00" },
+                    }}
+                  >
                     Sign Up
                   </Button>
 
                   <Typography variant="body2" textAlign="center" mt={2}>
-                    Already have an account? <Link href="/login" sx={{ color: "#FF8C00" }}>Sign In</Link>
+                    Already have an account?{" "}
+                    <Link href="/login" sx={{ color: "#FF8C00" }}>
+                      Sign In
+                    </Link>
                   </Typography>
                 </form>
               </CardContent>

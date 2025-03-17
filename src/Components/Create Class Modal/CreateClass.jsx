@@ -20,9 +20,11 @@ import { showAlert } from "../../Utils/alertUtils";
 import dayjs from "dayjs";
 import { hideLoading, showLoading } from "../../Utils/loadingUtils";
 import { useSelector } from "react-redux";
+import { sendEmail } from "../../Utils/emailUtils";
 
 const CourseModal = ({ open, onClose, fetchClasses, instructors, venues }) => {
   const userRole = useSelector((state) => state.user?.role);
+  const userEmail = useSelector((state) => state.user?.email);
   const [course, setCourse] = useState({
     name: "",
     instructor: "",
@@ -61,11 +63,46 @@ const CourseModal = ({ open, onClose, fetchClasses, instructors, venues }) => {
   const createClass = async (data) => {
     showLoading();
     try {
-      await ClassServices.createClass(data);
+      const res = await ClassServices.createClass(data);
       showAlert("success", "Class Created!");
       fetchClasses();
       console.log(data);
       onClose();
+  
+      const classTitle = res?.data?.name;
+  
+      // Email content
+      const emailContent = {
+        subject: "📚 New Class Created!",
+        text: `A new class "${classTitle}" has been created.`,
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f4f4f4; border-radius: 10px;">
+            <div style="background-color: #007bff; color: white; text-align: center; padding: 15px; border-radius: 10px 10px 0 0;">
+              <h2>📚 New Class Created!</h2>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 0 0 10px 10px;">
+              <p>Dear Instructor and Students,</p>
+              <p>A new class titled <strong>"${classTitle}"</strong> has been successfully created.</p>
+              <h3 style="color: #007bff;">Class Details:</h3>
+              <ul>
+                <li>📖 <strong>Course:</strong> ${classTitle}</li>
+                <li>👨‍🏫 <strong>Instructor:</strong> ${data.instructor}</li>
+                <li>📍 <strong>Venue:</strong> ${data.venue}</li>
+                <li>📅 <strong>Day:</strong> ${data.schedule.day}</li>
+                <li>⏰ <strong>Time:</strong> ${data.schedule.time}</li>
+              </ul>
+              <p>Please be prepared for your first session. 🚀</p>
+              <p>Best Regards,<br><strong>Your Institution</strong></p>
+            </div>
+          </div>
+        `,
+      };
+  
+      // Send email to instructor
+      sendEmail({ to: userEmail, ...emailContent });
+  
+    
+  
     } catch (error) {
       showAlert("error", "Something went wrong!");
       console.error(error);
@@ -76,6 +113,7 @@ const CourseModal = ({ open, onClose, fetchClasses, instructors, venues }) => {
       setSelectedDateTime(null);
     }
   };
+  
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">

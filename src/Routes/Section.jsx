@@ -17,6 +17,7 @@ import CampusMapExample from "../Pages/Tasks/Tasks";
 import Library from "../Pages/Library/Library";
 import Classes from "../Pages/Classes/Classes";
 import Shop from "../Pages/Shop/Shop";
+import ForgotPassword from "../Pages/Forgot Password/ForgotPassword";
 
 function Router() {
   const routes = useRoutes([
@@ -33,6 +34,7 @@ function Router() {
     },
     { path: "/login", element: <Login /> },
     { path: "/signup", element: <Signup /> },
+    { path: "/forgot-password", element: <ForgotPassword /> },
 
     // Main Outlet
     {

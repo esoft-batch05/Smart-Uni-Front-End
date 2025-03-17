@@ -31,10 +31,12 @@ import { hideLoading, showLoading } from "../../Utils/loadingUtils";
 import { showAlert } from "../../Utils/alertUtils";
 import { Email, Message, Chat } from "@mui/icons-material";
 import VenueServices from "../../Services/VenueService";
+import { sendEmail } from "../../Utils/emailUtils";
 
 const EventCard = ({ event, onEventDeleted, venues }) => {
   const { name, date, venue, image, _id } = event;
   const userRole = useSelector((state) => state.user?.role);
+  const userEmail = useSelector((state) => state.user?.email);
   const userId = useSelector((state) => state.user?._id);
 
   const [openModal, setOpenModal] = useState(false);
@@ -175,6 +177,35 @@ const EventCard = ({ event, onEventDeleted, venues }) => {
     try {
       const response = await EventServices.attendEvent(data);
       showAlert("success", "Attended to Event!");
+  
+      const eventTitle = response?.data?.name;
+  
+      // Send email confirmation for attending an event
+      sendEmail({
+        to: 'kavishkasahandj@gmail.com',
+        subject: "🎟 Event Registration Confirmation",
+        text: `You have successfully registered for the event: "${eventTitle}".`,
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f4f4f4; border-radius: 10px;">
+            <div style="background-color: #28a745; color: white; text-align: center; padding: 15px; border-radius: 10px 10px 0 0;">
+              <h2>🎟 Event Registration Successful</h2>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 0 0 10px 10px;">
+              <p>Dear User,</p>
+              <p>You have successfully registered for the event: <strong>"${eventTitle}"</strong>.</p>
+              <h3 style="color: #28a745;">Event Details:</h3>
+              <ul>
+                <li>📅 <strong>Date:</strong> ${response?.data?.date}</li>
+                <li>⏰ <strong>Time:</strong>${response?.data?.date}</li>
+                <li>📍 <strong>Venue:</strong> Smart Uni </li>
+              </ul>
+              <p>We look forward to seeing you there! 🎉</p>
+              <p>Best Regards,<br><strong>Your Company Name</strong></p>
+            </div>
+          </div>
+        `,
+      });
+  
       onEventDeleted();
     } catch (error) {
       showAlert("error", "Something went wrong!");
@@ -182,6 +213,7 @@ const EventCard = ({ event, onEventDeleted, venues }) => {
       hideLoading();
     }
   };
+  
   const unAttendEvent = async (eventId, userId) => {
     showLoading("Attending...");
     try {
