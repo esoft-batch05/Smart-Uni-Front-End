@@ -33,9 +33,11 @@ import FileUpload from "../../Services/FileUploadService";
 import { Email, Message, Chat, CheckCircle } from "@mui/icons-material";
 import VenueServices from "../../Services/VenueService";
 import MessageServices from "../../Services/MessageService";
+import { sendEmail } from "../../Utils/emailUtils";
 
 function Event() {
   const userRole = useSelector((state) => state.user?.role);
+  const userEmail = useSelector((state) => state.user?.email);
   const [events, setEvents] = useState([]);
   const [attendees, setAttendees] = useState([]);
   const [venues, setVenues] = useState([]);
@@ -182,26 +184,79 @@ function Event() {
 
   //   setEvents(dummyData);
   // }, []);
-  const handleFormSubmit = async () => {
-    showLoading("Event is Creating...");
-    try {
-      const response = await EventServices.createEvent(newEvent);
-      if (response?.data?.status === "approved") {
-        showAlert("success", "Event Created!");
-        setOpenModal(false);
-      } else if (response?.data?.status === "pending") {
-        showAlert(
-          "success",
-          "Your event is under review and approval is pending. It will be approved within 24 hours after review."
-        );
-        setOpenModal(false);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      hideLoading();
+
+const handleFormSubmit = async () => {
+  showLoading("Event is Creating...");
+  try {
+    const response = await EventServices.createEvent(newEvent);
+    const eventStatus = response?.data?.status;
+    const eventTitle = newEvent.name;
+
+    if (eventStatus === "approved") {
+      showAlert("success", "Event Created!");
+
+      // Send email confirmation for approved event
+      sendEmail({
+        to: userEmail,
+        subject: "🎉 Event Created Successfully - Approved",
+        text: `Your event "${eventTitle}" has been approved and is now live!`,
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f4f4f4; border-radius: 10px;">
+            <div style="background-color: #28a745; color: white; text-align: center; padding: 15px; border-radius: 10px 10px 0 0;">
+              <h2>🎉 Event Approved & Published</h2>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 0 0 10px 10px;">
+              <p>Dear User,</p>
+              <p>Your event <strong>"${eventTitle}"</strong> has been successfully approved and is now live on our platform! 🎊</p>
+              <h3 style="color: #28a745;">Event Details:</h3>
+              <ul>
+                <li>📅 <strong>Date:</strong> ${newEvent.date}</li>
+                <li>⏰ <strong>Time:</strong> ${newEvent.date}</li>
+                <li>📍 <strong>Venue:</strong> Smart Uni</li>
+              </ul>
+              <p>Feel free to share this event with your friends!</p>
+              <p>Best Regards,<br><strong>Your Company Name</strong></p>
+            </div>
+          </div>
+        `,
+      });
+
+      setOpenModal(false);
+    } else if (eventStatus === "pending") {
+      showAlert(
+        "success",
+        "Your event is under review and approval is pending. It will be approved within 24 hours after review."
+      );
+
+      // Send email for pending approval
+      sendEmail({
+        to: userEmail,
+        subject: "📌 Event Submission Received - Pending Approval",
+        text: `Your event "${eventTitle}" is under review and will be approved within 24 hours.`,
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f4f4f4; border-radius: 10px;">
+            <div style="background-color: #ffc107; color: white; text-align: center; padding: 15px; border-radius: 10px 10px 0 0;">
+              <h2>📌 Event Submission Received</h2>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 0 0 10px 10px;">
+              <p>Dear User,</p>
+              <p>We have received your event submission: <strong>"${eventTitle}"</strong>. Your event is currently under review and will be approved within the next 24 hours.</p>
+              <p>Once approved, you will receive another confirmation email.</p>
+              <p>Thank you for using our platform!</p>
+              <p>Best Regards,<br><strong>Your Company Name</strong></p>
+            </div>
+          </div>
+        `,
+      });
+
+      setOpenModal(false);
     }
-  };
+  } catch (error) {
+    console.log(error);
+  } finally {
+    hideLoading();
+  }
+};
 
   const fetchEvents = async () => {
     showLoading("Fetching Events...");
@@ -279,6 +334,7 @@ function Event() {
       });
     } catch (error) {
       console.error("Upload failed:", error);
+      showAlert('error', "File too Large!");
     }
   };
 
