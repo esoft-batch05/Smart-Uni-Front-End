@@ -19,10 +19,10 @@ const EventCalendar = () => {
   const theme = useTheme();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([
-    { id: 1, title: 'Team Meeting', date: '2025-03-10', color: theme.palette.primary.light },
-    { id: 2, title: 'Product Launch', date: '2025-03-15', color: theme.palette.success.light },
-    { id: 4, title: 'Conference Call', date: '2025-03-07', color: theme.palette.error.light },
-    { id: 5, title: 'Project Deadline', date: '2025-03-22', color: theme.palette.secondary.light }
+    // { id: 1, title: 'Team Meeting', date: '2025-03-10', color: theme.palette.primary.light },
+    // { id: 2, title: 'Product Launch', date: '2025-03-15', color: theme.palette.success.light },
+    // { id: 4, title: 'Conference Call', date: '2025-03-07', color: theme.palette.error.light },
+    // { id: 5, title: 'Project Deadline', date: '2025-03-22', color: theme.palette.secondary.light }
   ]);
 
   const prevMonth = () => {
