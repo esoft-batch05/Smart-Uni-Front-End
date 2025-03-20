@@ -23,33 +23,34 @@ function QualityCard() {
       sx={{ backgroundColor: "primary.lighter", borderRadius: "20px" }}
       p={4}
       ref={ref}
+      width="80%"
     >
-      <Grid container spacing={2} display="flex" justifyContent="center">
+      <Grid container  spacing={2} display="flex" justifyContent="center">
         <Grid item xs={10} sm={8} md={4} lg={4} sx={{ mt: { sm: 3 } }}>
           <Typography variant="h2" color="primary.main">
-            {startCount && <CountUp end={6} duration={5} />}+
+            {startCount && <CountUp end={2000} duration={1} />}+
           </Typography>
           <Divider sx={{ my: 1, width: "75%" }} />
           <Typography variant="h4" color="grey">
-            International Instructors
+            Students
           </Typography>
         </Grid>
         <Grid item xs={10} sm={8} md={4} lg={4} sx={{ mt: { sm: 3 } }}>
           <Typography variant="h2" color="primary.main">
-            {startCount && <CountUp end={10} duration={5} />}+
+            {startCount && <CountUp end={150} duration={5} />}+
           </Typography>
           <Divider sx={{ my: 1, width: "75%" }} />
           <Typography variant="h4" color="grey">
-            Activities to Build Communication Skills
+           Lecturers
           </Typography>
         </Grid>
         <Grid item xs={10} sm={8} md={4} lg={4} sx={{ mt: { sm: 3 } }}>
           <Typography variant="h2" color="primary.main">
-            {startCount && <CountUp end={30} duration={5} />}+
+            {startCount && <CountUp end={4} duration={1} />}+
           </Typography>
           <Divider sx={{ my: 1, width: "75%" }} />
           <Typography variant="h4" color="grey">
-            Interviews with English Instructors
+            Branches
           </Typography>
         </Grid>
       </Grid>
