@@ -88,6 +88,14 @@ class EventServices {
             throw error?.response?.data || new Error("Something went wrong");
         }
     }
+    static async getEventAndClasses(){
+        try{
+            const response = await get(`/event/events-and-classes`);
+            return response.data; 
+        } catch(error){
+            throw error?.response?.data || new Error("Something went wrong");
+        }
+    }
     
 }
 

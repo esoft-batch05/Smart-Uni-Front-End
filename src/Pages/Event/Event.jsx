@@ -334,6 +334,7 @@ const handleFormSubmit = async () => {
       });
     } catch (error) {
       console.error("Upload failed:", error);
+      showAlert('error', "File too Large!");
     }
   };
 

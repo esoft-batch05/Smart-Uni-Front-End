@@ -157,7 +157,6 @@ const ImprovedLayout = () => {
   // Update drawer state when screen size changes
   useEffect(() => {
     setOpen(!isMobile);
-    
   }, [isMobile]);
 
   const dispatch = useDispatch();
@@ -283,12 +282,12 @@ const ImprovedLayout = () => {
             </Avatar>
             <Box>
               <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
-                {user?.firstName?.split(" ")[0].charAt(0).toUpperCase() +
-                  user?.firstName?.split(" ")[0].slice(1).toLowerCase()}
+                {user?.firstName?.split(" ")[0]?.charAt(0).toUpperCase() +
+                  user?.firstName?.split(" ")[0]?.slice(1).toLowerCase()}
               </Typography>
               <Typography>
-                {user?.role?.split(" ")[0].charAt(0).toUpperCase() +
-                  user?.role?.split(" ")[0].slice(1).toLowerCase()}
+                {user?.role?.split(" ")[0]?.charAt(0).toUpperCase() +
+                  user?.role?.split(" ")[0]?.slice(1).toLowerCase()}
               </Typography>
             </Box>
             <IconButton
@@ -321,32 +320,50 @@ const ImprovedLayout = () => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      {isMobile && (
-        <StyledAppBar position="fixed" open={mobileOpen} isMobile={isMobile}>
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" noWrap component="div">
-              Smart UNI 
-            </Typography>
-          </Toolbar>
-        </StyledAppBar>
-      )}
+      {/* Mobile app bar */}
+      <StyledAppBar position="fixed" open={mobileOpen} isMobile={isMobile}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div">
+            Smart UNI 
+          </Typography>
+        </Toolbar>
+      </StyledAppBar>
 
-      <StyledDrawer
-        variant={isMobile ? "temporary" : "permanent"}
-        open={isMobile ? mobileOpen : open}
-        onClose={isMobile ? handleDrawerToggle : undefined}
-      >
-        {drawer}
-      </StyledDrawer>
+      {/* Mobile drawer */}
+      {isMobile ? (
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            '& .MuiDrawer-paper': { 
+              width: DRAWER_WIDTH,
+              boxSizing: 'border-box',
+              backgroundColor: "#ff8300",
+              color: "white",
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
+      ) : (
+        <StyledDrawer
+          variant="permanent"
+          open={open}
+        >
+          {drawer}
+        </StyledDrawer>
+      )}
 
       <Main open={open} isMobile={isMobile}>
         {isMobile && <Box sx={{ height: theme.spacing(7) }} />}
