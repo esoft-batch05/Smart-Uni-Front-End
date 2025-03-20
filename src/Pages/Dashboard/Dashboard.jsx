@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Grid, Typography, Table, TableBody, TableCell, 
 import EventCalendar from "../../Components/Calender/EventCalender";
 import TodoList from "../../Components/TODO List/Todo";
 
-export default function Dashboard() {
+export default function rDashboard() {
   return (
     <Box sx={{ flexGrow: 1, p: 3 }}>
       <Grid container spacing={3}>
