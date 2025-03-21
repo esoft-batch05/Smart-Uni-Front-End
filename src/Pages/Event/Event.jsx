@@ -55,7 +55,7 @@ function Event() {
     image: "",
     ticketPrice: "",
     location: "",
-    venue:"",
+    venue: "",
     organizer: "",
     role: userRole,
   });
@@ -114,9 +114,9 @@ function Event() {
       }
     };
     getEvents();
+
+    
   }, []);
-
-
 
   // const getEvents = async () => {
   //   showLoading("Fetching Events...");
@@ -185,22 +185,22 @@ function Event() {
   //   setEvents(dummyData);
   // }, []);
 
-const handleFormSubmit = async () => {
-  showLoading("Event is Creating...");
-  try {
-    const response = await EventServices.createEvent(newEvent);
-    const eventStatus = response?.data?.status;
-    const eventTitle = newEvent.name;
+  const handleFormSubmit = async () => {
+    showLoading("Event is Creating...");
+    try {
+      const response = await EventServices.createEvent(newEvent);
+      const eventStatus = response?.data?.status;
+      const eventTitle = newEvent.name;
 
-    if (eventStatus === "approved") {
-      showAlert("success", "Event Created!");
+      if (eventStatus === "approved") {
+        showAlert("success", "Event Created!");
 
-      // Send email confirmation for approved event
-      sendEmail({
-        to: userEmail,
-        subject: "🎉 Event Created Successfully - Approved",
-        text: `Your event "${eventTitle}" has been approved and is now live!`,
-        html: `
+        // Send email confirmation for approved event
+        sendEmail({
+          to: userEmail,
+          subject: "🎉 Event Created Successfully - Approved",
+          text: `Your event "${eventTitle}" has been approved and is now live!`,
+          html: `
           <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f4f4f4; border-radius: 10px;">
             <div style="background-color: #28a745; color: white; text-align: center; padding: 15px; border-radius: 10px 10px 0 0;">
               <h2>🎉 Event Approved & Published</h2>
@@ -219,21 +219,34 @@ const handleFormSubmit = async () => {
             </div>
           </div>
         `,
-      });
+        });
 
-      setOpenModal(false);
-    } else if (eventStatus === "pending") {
-      showAlert(
-        "success",
-        "Your event is under review and approval is pending. It will be approved within 24 hours after review."
-      );
+        setOpenModal(false);
+        setNewEvent({
+          name: "",
+          description: "",
+          date: "",
+          eventType: "",
+          proposal: "",
+          image: "",
+          ticketPrice: "",
+          location: "",
+          venue: "",
+          organizer: "",
+          role: userRole,
+        });
+      } else if (eventStatus === "pending") {
+        showAlert(
+          "success",
+          "Your event is under review and approval is pending. It will be approved within 24 hours after review."
+        );
 
-      // Send email for pending approval
-      sendEmail({
-        to: userEmail,
-        subject: "📌 Event Submission Received - Pending Approval",
-        text: `Your event "${eventTitle}" is under review and will be approved within 24 hours.`,
-        html: `
+        // Send email for pending approval
+        sendEmail({
+          to: userEmail,
+          subject: "📌 Event Submission Received - Pending Approval",
+          text: `Your event "${eventTitle}" is under review and will be approved within 24 hours.`,
+          html: `
           <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f4f4f4; border-radius: 10px;">
             <div style="background-color: #ffc107; color: white; text-align: center; padding: 15px; border-radius: 10px 10px 0 0;">
               <h2>📌 Event Submission Received</h2>
@@ -247,16 +260,16 @@ const handleFormSubmit = async () => {
             </div>
           </div>
         `,
-      });
+        });
 
-      setOpenModal(false);
+        setOpenModal(false);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      hideLoading();
     }
-  } catch (error) {
-    console.log(error);
-  } finally {
-    hideLoading();
-  }
-};
+  };
 
   const fetchEvents = async () => {
     showLoading("Fetching Events...");
@@ -334,7 +347,7 @@ const handleFormSubmit = async () => {
       });
     } catch (error) {
       console.error("Upload failed:", error);
-      showAlert('error', "File too Large!");
+      showAlert("error", "File too Large!");
     }
   };
 
@@ -456,7 +469,11 @@ const handleFormSubmit = async () => {
       <Grid container spacing={3} mt={3}>
         {sortedEvents.map((event, index) => (
           <Grid item xs={12} sm={6} md={12} key={index}>
-            <EventCard event={event} venues={venues} onEventDeleted={handleEventDeleted} />
+            <EventCard
+              event={event}
+              venues={venues}
+              onEventDeleted={handleEventDeleted}
+            />
           </Grid>
         ))}
       </Grid>
