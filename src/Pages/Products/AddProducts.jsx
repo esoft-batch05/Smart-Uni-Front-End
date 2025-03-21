@@ -148,7 +148,7 @@ const AdminShopPage = () => {
     formData.append("file", file);
   
     try {
-      const response = await fetch("http://localhost:5005/api/file/upload", {
+      const response = await fetch("://localhost:5005/ahttppi/file/upload", {
         method: "POST",
         body: formData,
       });
@@ -287,7 +287,7 @@ const AdminShopPage = () => {
                               </button>
                               <button
                                 className="btn btn-sm btn-outline-danger"
-                                onClick={() => handleDeleteProduct(product.id)}
+                                onClick={() => handleDeleteProduct(product._id)}
                                 title="Delete"
                               >
                                 <Trash size={16} />

@@ -1,81 +1,89 @@
 import React, { useState, useEffect } from 'react';
 import CartPage from '../Cart/Cart';
+import productService from '../../Services/ShopService'; 
 
 const Shop = () => {
-  // Sample products data
-  const initialProducts = [
-    { id: 1, name: 'University T-Shirt', category: 'Clothing', price: 24.99, image: '/api/placeholder/200/150' },
-    { id: 2, name: 'University Hoodie', category: 'Clothing', price: 49.99, image: '/api/placeholder/200/150' },
-    { id: 3, name: 'University Wristband', category: 'Accessories', price: 5.99, image: '/api/placeholder/200/150' },
-    { id: 4, name: 'University Cap', category: 'Clothing', price: 19.99, image: '/api/placeholder/200/150' },
-    { id: 5, name: 'University Notebook', category: 'Stationery', price: 12.99, image: '/api/placeholder/200/150' },
-    { id: 6, name: 'University Pen', category: 'Stationery', price: 3.99, image: '/api/placeholder/200/150' },
-    { id: 7, name: 'University Mug', category: 'Accessories', price: 15.99, image: '/api/placeholder/200/150' },
-    { id: 8, name: 'University Lanyard', category: 'Accessories', price: 7.99, image: '/api/placeholder/200/150' },
-  ];
-
   // State variables
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]); // Keep all products to filter locally
+  const [categories, setCategories] = useState(['All']);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [cart, setCart] = useState([]);
-  const [imagesLoaded, setImagesLoaded] = useState({});
-  const [showCart, setShowCart] = useState(false); // New state to control page display
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showCart, setShowCart] = useState(false);
 
-  // List of unique categories
-  const categories = ['All', ...new Set(initialProducts.map(product => product.category))];
-
-  // Simulate image loading
+  // Fetch products and categories on component mount
   useEffect(() => {
-    // Initial state: all images are loading
-    const loadingState = {};
-    initialProducts.forEach(product => {
-      loadingState[product.id] = false;
-    });
-    
-    // Simulate random loading times
-    initialProducts.forEach(product => {
-      const loadTime = Math.random() * 2000 + 500; // Random time between 500ms and 2500ms
-      setTimeout(() => {
-        setImagesLoaded(prev => ({
-          ...prev,
-          [product.id]: true
-        }));
-      }, loadTime);
-    });
-    
-    setImagesLoaded(loadingState);
+    fetchCategories();
+    fetchAllProducts();
   }, []);
+
+  // Filter products when search term or category filter changes
+  useEffect(() => {
+    filterProducts();
+  }, [searchTerm, categoryFilter, allProducts]);
+
+  // Fetch all products once
+  const fetchAllProducts = async () => {
+    try {
+      setIsLoading(true);
+      const response = await productService.getProducts('', '');
+      setAllProducts(response.data || []);
+      setProducts(response.data || []);
+      setIsLoading(false);
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      setError('Failed to load products. Please try again later.');
+      setIsLoading(false);
+    }
+  };
+
+  // Filter products locally based on search and category
+  const filterProducts = () => {
+    if (!allProducts.length) return;
+
+    let filtered = [...allProducts];
+
+    // Apply category filter
+    if (categoryFilter !== 'All') {
+      filtered = filtered.filter(product => 
+        product.category === categoryFilter
+      );
+    }
+
+    // Apply search filter
+    if (searchTerm.trim() !== '') {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(product => 
+        product.name.toLowerCase().includes(searchLower) || 
+        product.category.toLowerCase().includes(searchLower)
+      );
+    }
+
+    setProducts(filtered);
+  };
+
+  // Fetch categories from API
+  const fetchCategories = async () => {
+    try {
+      const response = await productService.getCategories();
+      // Add 'All' option to the beginning of categories list
+      setCategories(['All', ...response]);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+      // Keep the default 'All' category even if API fails
+    }
+  };
 
   // Handle search and filter
   const handleSearch = (term) => {
     setSearchTerm(term);
-    filterProducts(term, categoryFilter);
   };
 
   const handleCategoryFilter = (category) => {
     setCategoryFilter(category);
-    filterProducts(searchTerm, category);
-  };
-
-  const filterProducts = (term, category) => {
-    let filteredProducts = initialProducts;
-    
-    // Filter by search term
-    if (term) {
-      filteredProducts = filteredProducts.filter(product => 
-        product.name.toLowerCase().includes(term.toLowerCase())
-      );
-    }
-    
-    // Filter by category
-    if (category !== 'All') {
-      filteredProducts = filteredProducts.filter(product => 
-        product.category === category
-      );
-    }
-    
-    setProducts(filteredProducts);
   };
 
   // Cart functions
@@ -161,55 +169,89 @@ const Shop = () => {
         </div>
       </div>
       
-      {/* Product Grid - Using Bootstrap's row and col system for 4 cards per row */}
-      <div className="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
-        {products.length > 0 ? (
-          products.map(product => (
-            <div key={product.id} className="col">
+      {/* Error message */}
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
+      
+      {/* Loading state */}
+      {isLoading ? (
+        <div className="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+          {[...Array(8)].map((_, index) => (
+            <div key={index} className="col">
               <div className="card h-100 shadow-sm">
-                <div className="position-relative" style={{ height: "192px" }}>
-                  {!imagesLoaded[product.id] ? (
-                    <ImageSkeleton />
-                  ) : (
+                <ImageSkeleton />
+                <div className="card-body">
+                  <h5 className="placeholder-glow">
+                    <span className="placeholder col-7"></span>
+                  </h5>
+                  <p className="card-text placeholder-glow">
+                    <span className="placeholder col-4"></span>
+                  </p>
+                  <p className="card-text placeholder-glow">
+                    <span className="placeholder col-3"></span>
+                  </p>
+                  <div className="d-grid gap-2 d-md-flex justify-content-md-between mt-3 placeholder-glow">
+                    <span className="placeholder col-5"></span>
+                    <span className="placeholder col-5"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* Product Grid */
+        <div className="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+          {products.length > 0 ? (
+            products.map(product => (
+              <div key={product.id} className="col">
+                <div className="card h-100 shadow-sm">
+                  <div className="position-relative" style={{ height: "192px" }}>
                     <img 
                       src={product.image} 
                       alt={product.name}
                       className="card-img-top"
                       style={{ height: "192px", objectFit: "cover" }}
+                      onError={(e) => {
+                        e.target.src = '/api/placeholder/200/150'; // Fallback image
+                      }}
                     />
-                  )}
-                </div>
-                <div className="card-body">
-                  <h5 className="card-title">{product.name}</h5>
-                  <p className="card-text text-muted">{product.category}</p>
-                  <p className="card-text text-primary fw-bold">${product.price.toFixed(2)}</p>
-                  
-                  <div className="d-grid gap-2 d-md-flex justify-content-md-between mt-3">
-                    <button 
-                      className="btn btn-primary me-md-1 flex-fill"
-                      onClick={() => buyNow(product)}
-                    >
-                      Buy Now
-                    </button>
-                    <button 
-                      className="btn btn-outline-primary flex-fill"
-                      onClick={() => addToCart(product)}
-                    >
-                      Add to Cart
-                    </button>
+                  </div>
+                  <div className="card-body">
+                    <h5 className="card-title">{product.name}</h5>
+                    <p className="card-text text-muted">{product.category}</p>
+                    <p className="card-text text-primary fw-bold">${parseFloat(product.price).toFixed(2)}</p>
+                    
+                    <div className="d-grid gap-2 d-md-flex justify-content-md-between mt-3">
+                      <button 
+                        className="btn btn-primary me-md-1 flex-fill"
+                        onClick={() => buyNow(product)}
+                      >
+                        Buy Now
+                      </button>
+                      <button 
+                        className="btn btn-outline-primary flex-fill"
+                        onClick={() => addToCart(product)}
+                      >
+                        Add to Cart
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="col-12 text-center py-4 text-muted">
+              No products found matching your search.
             </div>
-          ))
-        ) : (
-          <div className="col-12 text-center py-4 text-muted">
-            No products found matching your search.
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
       
-      {/* Cart count indicator - now clickable to navigate to cart */}
+      {/* Cart count indicator */}
       {cart.length > 0 && (
         <div 
           style={{ position: "fixed", bottom: "24px", right: "24px", cursor: "pointer" }}
@@ -225,4 +267,4 @@ const Shop = () => {
   );
 };
 
-export default Shop;
+export default Shop; 
