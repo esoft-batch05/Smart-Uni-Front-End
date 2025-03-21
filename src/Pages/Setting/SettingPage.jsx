@@ -180,6 +180,7 @@ const SettingPage = () => {
 
   useEffect(() => {
     getUserData();
+    console.log(user);
   }, []); // Fetch user data once when component mounts
 
   useEffect(() => {
