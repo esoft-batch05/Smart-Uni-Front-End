@@ -180,7 +180,7 @@ const ImprovedLayout = () => {
   const shortcutsItems = [
     { text: 'Tasks', icon: <TasksIcon />, path: '/tasks' },
     { text: 'Inbox', icon: <MessagesIcon />, path: '/help' },
-    { text: 'Shop', icon: <ShoppingCartIcon />, path: '/admin-shop' },
+    { text: 'Shop', icon: <ShoppingCartIcon />, path: '/help' },
     { text: 'Settings', icon: <SettingsIcon />, path: '/admin-settings' },
   ];
 
