@@ -18,6 +18,7 @@ import Library from "../Pages/Library/Library";
 import Classes from "../Pages/Classes/Classes";
 import Shop from "../Pages/Shop/Shop";
 import ForgotPassword from "../Pages/Forgot Password/ForgotPassword";
+import AdminShopPage from "../Pages/Products/AddProducts";
 
 function Router() {
   const routes = useRoutes([
@@ -83,11 +84,11 @@ function Router() {
     {
       path: "/",
       element: (
-        <LecturerLayout>
+        <AdminLayout>
           <Suspense>
             <Outlet />
           </Suspense>
-        </LecturerLayout>
+        </AdminLayout>
       ),
       children: [
         { path: "/admin-dashboard", element: <Dashboard /> }, 
@@ -98,9 +99,8 @@ function Router() {
         { path: "/admin-settings", element: <SettingPage /> }, 
         { path: "/admin-message", element: <Message /> },
         { path: "/map", element: <CampusMapExample /> },
-        { path: "/shop", element: <Shop /> },
+        { path: "/admin-shop", element: <AdminShopPage /> },
 
-        
       ],
     },
   ]);
