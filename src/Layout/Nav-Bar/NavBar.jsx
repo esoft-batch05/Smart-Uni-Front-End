@@ -6,7 +6,7 @@ import {
   Box,
   Button,
 } from "@mui/material";
-import Logo from "../../../src/assets/Images/english new.png";
+import Logo from "../../../src/assets/Images/Logo.png";
 import { useNavigate } from "react-router-dom";
 
 const NavBar = ({ children }) => {

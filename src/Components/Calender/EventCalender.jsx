@@ -19,6 +19,7 @@ const EventCalendar = () => {
   const [events, setEvents] = useState([]);
   const [classes, setClasses] = useState([]);
   const [calendarItems, setCalendarItems] = useState([]);
+  const today = new Date(); // Store actual today's date separately
 
   const getEventAndClasses = async () => {
     try {
@@ -130,6 +131,15 @@ const EventCalendar = () => {
     return calendarItems.filter(item => item.date === formattedDate);
   };
 
+  // Check if a day is today
+  const isToday = (day) => {
+    return (
+      today.getDate() === day &&
+      today.getMonth() === currentDate.getMonth() &&
+      today.getFullYear() === currentDate.getFullYear()
+    );
+  };
+
   return (
     <Paper
       elevation={3}
@@ -179,25 +189,42 @@ const EventCalendar = () => {
         {[...Array(daysInMonth)].map((_, index) => {
           const day = index + 1;
           const dayItems = getItemsForDate(day);
+          const todayFlag = isToday(day);
           return (
             <Grid item xs={12 / 7} sm={12 / 7} key={index}>
               <Box
                 sx={{
                   border: "1px solid",
-                  borderColor: "divider",
+                  borderColor: todayFlag ? theme.palette.primary.main : "divider",
                   p: 1,
                   borderRadius: 1,
-                  bgcolor:
-                    currentDate.getDate() === day
-                      ? theme.palette.action.selected
-                      : "inherit",
+                  bgcolor: todayFlag ? theme.palette.primary.main + "20" : "inherit",
                   minHeight: 60,
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
+                  position: "relative",
+                  boxShadow: todayFlag ? `0 0 4px ${theme.palette.primary.main}` : "none",
                 }}
               >
-                <Typography variant="body1" fontWeight="bold">
+                {todayFlag && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "4px",
+                      right: "4px",
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      bgcolor: theme.palette.error.main,
+                    }}
+                  />
+                )}
+                <Typography
+                  variant="body1"
+                  fontWeight={todayFlag ? "bold" : "normal"}
+                  color={todayFlag ? theme.palette.primary.dark : "inherit"}
+                >
                   {day}
                 </Typography>
                 <Stack spacing={0.5} mt={1}>
@@ -236,15 +263,23 @@ const EventCalendar = () => {
         })}
       </Grid>
       
-      {/* Legend */}
-      <Box sx={{ mt: 2, display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {/* Today indicator */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box sx={{ width: 16, height: 16, bgcolor: theme.palette.primary.light, mr: 1, borderRadius: 1 }} />
-          <Typography variant="caption">Events</Typography>
+          <Box sx={{ width: 16, height: 16, bgcolor: theme.palette.primary.main + "20", border: `1px solid ${theme.palette.primary.main}`, boxShadow: `0 0 4px ${theme.palette.primary.main}`, mr: 1, borderRadius: 1 }} />
+          <Typography variant="caption">Today</Typography>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box sx={{ width: 16, height: 16, bgcolor: theme.palette.secondary.light, mr: 1, borderRadius: 1 }} />
-          <Typography variant="caption">Classes</Typography>
+        
+        {/* Legend */}
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ width: 16, height: 16, bgcolor: theme.palette.primary.light, mr: 1, borderRadius: 1 }} />
+            <Typography variant="caption">Events</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ width: 16, height: 16, bgcolor: theme.palette.secondary.light, mr: 1, borderRadius: 1 }} />
+            <Typography variant="caption">Classes</Typography>
+          </Box>
         </Box>
       </Box>
     </Paper>
