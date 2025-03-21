@@ -1,97 +1,270 @@
-import React from "react";
-import { TextField, Button, Typography, Box } from "@mui/material";
-import { styled } from "@mui/system";
-import Limage from "../../assets/usermanageimge/Limage.png"; // Import your image
+import React, { useState } from "react";
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Container,
+  Grid,
+  Paper,
+  Link,
+} from "@mui/material";
+import Image from "../../assets/Images/Group 1000002552.png";
+import UserServices from "../../Services/UserService";
+import { showAlert } from "../../Utils/alertUtils";
+import { showLoading, hideLoading } from "../../Utils/loadingUtils";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { setTokens } from "../../Reducers/authSlice";
+import { updateUser } from "../../Reducers/userSlice";
+import { sendEmail } from "../../Utils/emailUtils";
 
-const RootContainer = styled("div")({
-  display: "flex",
-  height: "100vh",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "#fff",
-  position: "relative",
-  flexDirection: "row",
-  '@media (max-width: 768px)': {
-    flexDirection: "column", // Stack elements on smaller screens
-  },
-});
+const LoginPage = () => {
+  const [formValues, setFormValues] = useState({
+    email: "",
+    password: "",
+  });
+  let role;
 
-const LeftBox = styled(Box)({
-  width: "35%",
-  height: "100%",
-  background: "#ff7a00",
-  '@media (max-width: 768px)': {
-    width: "100%", // Full width on smaller screens
-    height: "200px", // Limit the height for smaller screens
-    position: "relative",
-  },
-});
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-const RightBox = styled(Box)({
-  flex: 1,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  '@media (max-width: 768px)': {
-    justifyContent: "flex-start", // Align to the top on smaller screens
-  },
-});
+  const login = async (email, password) => {
+    showLoading("Login...");
+    try {
+      const response = await UserServices.userLogin({
+        email: email,
+        password: password,
+      });
 
-const LoginBox = styled(Box)({
-  width: "400px",
-  padding: "30px",
-  borderRadius: "10px",
-  background: "#f8f8f8",
-  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-  textAlign: "center",
-  zIndex: 20, // Ensure the form stays above the image
-  '@media (max-width: 768px)': {
-    width: "90%", // Take 90% of the width on smaller screens
-    padding: "20px",
-  },
-});
+      showAlert("success", "Login successful!");
 
-const LoginButton = styled(Button)({
-  backgroundColor: "#ff7a00",
-  color: "white",
-  fontWeight: "bold",
-  marginTop: "20px",
-  "&:hover": {
-    backgroundColor: "#e66a00",
-  },
-});
+      dispatch(
+        setTokens({
+          accessToken: response.data.token,
+          refreshToken: response.data.refreshToken,
+        })
+      );
 
-const PopUpImage = styled("img")({
-  position: "absolute",
-  left: "35%",
-  top: "57.5%",
-  transform: "translate(-50%, -50%)",
-  width: "1000px",
-  zIndex: "10", // Make sure image stays below the form
+      dispatch(
+        updateUser({
+          _id: response.data._id,
+          firstName: response.data.firstName,
+          email: response.data.email,
+          role: response.data.role,
+          phone: response.data.phone,
+          dob: response.data.dob,
+          profileImage: response.data.profileImage,
+        })
+      );
 
-});
+      // Send login success email
+      sendEmail({
+        to: formValues.email,
+        subject: "🔐 Login Alert - Your Account Accessed",
+        text: `Hello ${response.data.firstName}, your account was successfully logged in.`,
+        html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f4f4f4; border-radius: 10px;">
+          <div style="background-color: #28a745; color: white; text-align: center; padding: 15px; border-radius: 10px 10px 0 0;">
+            <h2>🔐 Login Successful</h2>
+          </div>
+          <div style="background: white; padding: 20px; border-radius: 0 0 10px 10px;">
+            <p>Dear ${response.data.firstName},</p>
+            <p>We noticed a successful login to your account. If this was you, no action is needed. If you didn't log in, please reset your password immediately.</p>
+            <h3 style="color: #28a745;">Login Details:</h3>
+            <ul>
+              <li>📧 <strong>Email:</strong> ${email}</li>
+              <li>🕒 <strong>Time:</strong> ${new Date().toLocaleString()}</li>
+              <li>🌍 <strong>IP Address:</strong> [Detect and Insert IP Here]</li>
+            </ul>
+            <p>For security reasons, please do not share your login details with anyone.</p>
+            <p>Best Regards,<br><strong>Your Company Name</strong></p>
+          </div>
+        </div>
+      `,
+      });
 
-const Login = () => {
+      // Redirect based on role
+      const role = response?.data?.role;
+      if (role === "student") {
+        navigate("/student-dashboard");
+      } else if (role === "lecturer") {
+        navigate("/lecturer-dashboard");
+      } else {
+        navigate("/admin-dashboard");
+      }
+
+      console.log(role);
+    } catch (error) {
+      console.error("Login failed:", error.message);
+      showAlert("error", "Login Failed!");
+    } finally {
+      hideLoading();
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({
+      ...formValues,
+      [name]: value,
+    });
+  };
+
+  const handleClick = async (e) => {
+    e.preventDefault();
+    login(formValues.email, formValues.password);
+  };
+
   return (
-    <RootContainer>
-      <LeftBox />
-      <PopUpImage src={Limage} alt="Login Illustration" />
-      <RightBox>
-        <LoginBox>
-          <Typography variant="h5" fontWeight="bold">WELCOME</Typography>
-          <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-            Log in to Discover Your Dream Course and University!
+    <Box
+      sx={{
+        display: "flex",
+        height: "100vh",
+        width: "100%",
+        overflow: "hidden",
+      }}
+    >
+      <Box
+        sx={{
+          width: "50%",
+          // bgcolor: '#FF8C00',
+          display: { xs: "none", md: "flex" },
+          position: "relative",
+        }}
+      >
+        <img
+          src={Image}
+          alt="Student with books"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+      </Box>
+
+      {/* Right side - Form section (50%) */}
+      <Box
+        sx={{
+          width: { xs: "100%", md: "50%" },
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          p: 4,
+        }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            p: 4,
+            width: "100%",
+            maxWidth: "480px",
+            bgcolor: "#f5f5f5",
+            borderRadius: 2,
+          }}
+        >
+          <Typography
+            variant="h3"
+            component="h1"
+            align="start"
+            fontWeight="bold"
+            mb={3}
+          >
+            Login
           </Typography>
-          <TextField fullWidth label="Email" variant="outlined" sx={{ mb: 2 }} />
-          <TextField fullWidth label="Password" type="password" variant="outlined" sx={{ mb: 2 }} />
-          <LoginButton fullWidth variant="contained">Sign In</LoginButton>
-          <Typography variant="body2" sx={{ mt: 2 }}>
-            Don't have an account? <a href="/signup" style={{ color: "#ff7a00", textDecoration: "none" }}>Sign Up</a>
+
+          <Typography
+            variant="body2"
+            align="start"
+            mb={4}
+            color="text.secondary"
+          >
+            Log in to Discover Your Dream Course and University. Get
+            Personalized Guidance and Expert Tips Installation!
           </Typography>
-        </LoginBox>
-      </RightBox>
-    </RootContainer>
+
+          <Box component="form" onSubmit={handleClick} sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              size="medium"
+              id="email"
+              label="Email"
+              name="email"
+              autoComplete="email"
+              value={formValues.email}
+              onChange={handleChange}
+              variant="outlined"
+              sx={{ mb: 2 }}
+            />
+
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              size="medium"
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              value={formValues.password}
+              onChange={handleChange}
+              variant="outlined"
+              sx={{ mb: 3 }}
+            />
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{
+                mt: 1,
+                mb: 2,
+                py: 1.5,
+                bgcolor: "#FF8C00",
+                "&:hover": {
+                  bgcolor: "#e67e00",
+                },
+                fontWeight: "medium",
+                fontSize: "1rem",
+              }}
+            >
+              Sign In
+            </Button>
+
+            <Box sx={{ textAlign: "center", mt: 2 }}>
+              <Typography
+                variant="body2"
+                display="inline"
+                color="text.secondary"
+              >
+                Don't have an account?
+              </Typography>
+              
+              <Link
+                href="signup"
+                variant="body2"
+                sx={{ ml: 0.5, color: "#FF8C00" }}
+              >
+                Sign Up
+              </Link>
+              <br />
+              <Link
+                href="forgot-password"
+                variant="body2"
+                sx={{ ml: 0.5, color: "#FF8C00", }}
+              >
+               Forgot password?
+              </Link>
+            </Box>
+          </Box>
+        </Paper>
+      </Box>
+    </Box>
   );
 };
 
-export default Login;
+export default LoginPage;

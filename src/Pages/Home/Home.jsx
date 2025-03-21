@@ -2,15 +2,15 @@ import React, { useEffect, useState } from "react";
 import { Box, Button, Container, Grid, Typography } from "@mui/material";
 import Carousel from "react-material-ui-carousel";
 import TypoVariant from "../../Hooks/TypoResponsive/UseTypoResponsive";
-import Image1 from "../../assets/Images/Desktop - 1.png";
-import Image2 from "../../assets/Images/Pool Table Girls.png";
-import Image3 from "../../assets/Images/Coffe Shop.png";
-import Image4 from "../../assets/Images/Beach Couple.png";
+import Image1 from "../../assets/Images/aranxa-esteve-S5DEUg2yUVU-unsplash.jpg";
+import Image2 from "../../assets/Images/noiseporn-JNuKyKXLh8U-unsplash.jpg";
+import Image3 from "../../assets/Images/teemu-paananen-bzdhc5b3Bxs-unsplash.jpg";
+import Image4 from "../../assets/Images/drahomir-hugo-posteby-mach-n4y3eiQSIoc-unsplash.jpg";
 import ImageList from "../../Components/ImageList/ImageList";
 import QualityCard from "../../Components/Quality Count Card/QualityCard";
 import BenifitsCard from "../../Components/Benefits Cards/BenifitsCard";
 import { useSelector, useDispatch } from "react-redux";
-import { showAlert } from '../../Utils/alertUtils';
+import { showAlert } from "../../Utils/alertUtils";
 import { setTokens } from "../../Reducers/authSlice";
 
 import Aos from "aos";
@@ -18,11 +18,12 @@ import UserServices from "../../Services/UserService";
 import Login from "../Login/Login";
 
 const homeSlides = [
-  { title: "International English Institute", img: Image1 },
-  { title: "Expand Your Vocabulary", img: Image2 },
-  { title: "Expand Your English Speaking", img: Image3 },
-  { title: "Expand Your English Speaking", img: Image4 },
+  { title: "Smart University Management System", img: Image1 },
+  { title: "Effortless Event Planning & Scheduling", img: Image2 },
+  { title: "Seamless Resource Booking & Approvals", img: Image3 },
+  { title: "Enhancing Campus Efficiency & Productivity", img: Image4 },
 ];
+
 
 function Home() {
   const count = useSelector((state) => state.counter.value);
@@ -34,7 +35,7 @@ function Home() {
         email: "kavishkasahandj@gmail.com",
         password: "Sahan@1234",
       });
-      showAlert('error', 'Operation successful!');
+      showAlert("error", "Operation successful!");
       dispatch(
         setTokens({
           accessToken: await response.data.token,
@@ -182,17 +183,16 @@ function Home() {
                   bottom: "-15px",
                   width: "100%",
                   height: "20px",
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='20 0 200 5' preserveAspectRatio='none'%3E%3Cpath d='M0,12 Q400,9 150,5 T200,9 T300,5' stroke='%230000FF' fill='none' stroke-width='1'/%3E%3C/svg%3E")`,
+                  // backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='20 0 200 5' preserveAspectRatio='none'%3E%3Cpath d='M0,12 Q400,9 150,5 T200,9 T300,5' stroke='%230000FF' fill='none' stroke-width='1'/%3E%3C/svg%3E")`,
                   backgroundRepeat: "no-repeat",
                   backgroundSize: "100% 100%",
                 },
               }}
             >
-              Welcome to International{" "}
+              Welcome to Smart Uni{" "}
               <Box component="span" sx={{ color: "primary.main" }}>
-                English
+                System
               </Box>{" "}
-              Institute{" "}
             </Typography>
           </Grid>
           <Grid
@@ -209,17 +209,18 @@ function Home() {
             display="flex"
           >
             <Typography color="#757575" variant="h5" sx={{ fontWeight: "600" }}>
-              Our goal is to help Sri Lankan students improve their English
-              skills. English is essential for success, but many students find
-              it difficult to master, even after years of study. This is often
-              because they don’t get enough practice or aren’t in the right
-              environment to learn. We’ve created a course that focuses on
-              understanding and thinking in English, rather than just speaking,
-              reading, or writing. This makes us different from other programs.
-              Our young, international instructors bring fresh ideas and help
-              students connect with the world. Through our course, students will
-              not only become better at English but also gain confidence, create
-              new opportunities, and build global connections.
+              Our goal is to streamline event planning and resource management
+              for universities. Managing events, classrooms, and resources
+              efficiently is crucial, but many institutions face challenges due
+              to outdated or manual processes. Our system simplifies scheduling,
+              approvals, and bookings, ensuring seamless coordination for
+              students, faculty, and administrators. Unlike traditional methods,
+              our platform provides real-time availability, automated
+              notifications, and centralized management, improving accessibility
+              and efficiency. With an intuitive interface and modern technology,
+              we empower universities to enhance productivity, reduce
+              administrative burdens, and create a more organized academic
+              environment.
             </Typography>
           </Grid>
           <Grid
@@ -304,7 +305,7 @@ function Home() {
                     bottom: "-15px",
                     width: "100%",
                     height: "20px",
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='20 0 200 5' preserveAspectRatio='none'%3E%3Cpath d='M0,12 Q400,9 150,5 T200,9 T300,5' stroke='%230000FF' fill='none' stroke-width='1'/%3E%3C/svg%3E")`,
+                    // backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='20 0 200 5' preserveAspectRatio='none'%3E%3Cpath d='M0,12 Q400,9 150,5 T200,9 T300,5' stroke='%230000FF' fill='none' stroke-width='1'/%3E%3C/svg%3E")`,
                     backgroundRepeat: "no-repeat",
                     backgroundSize: "100% 100%",
                   },
@@ -460,41 +461,25 @@ function Home() {
                   position: "relative",
                 }}
               >
-                Why is English{" "}
+                Why{" "}
                 <Box component="span" sx={{ color: "primary.main" }}>
-                  Important?
+                  Us?
                 </Box>{" "}
               </Typography>
             </Box>
             <Typography color="#757575" variant="h5" sx={{ fontWeight: "600" }}>
-              English is a global language that opens doors to countless
-              opportunities in education, careers, and communication worldwide.
-              For Sri Lankan students, mastering English is essential not only
-              for academic success but also for building confidence in a world
-              where English is the bridge for connecting with people from
-              different countries. By learning English, students in Sri Lanka
-              can access a wealth of knowledge, engage in international
-              dialogues, and pursue global careers, helping them to succeed both
-              locally and globally.
+              Managing university events and resources efficiently can be
+              challenging. Our system simplifies the process by offering a
+              seamless platform for event planning, resource booking, and
+              approval workflows. With real-time availability, automated
+              notifications, and an intuitive interface, we help universities
+              streamline operations, reduce administrative workload, and enhance
+              overall productivity. Choose us for a smarter, more organized
+              campus experience.
             </Typography>
           </Grid>
         </Grid>
       </Container>
-
-      <Button
-        onClick={() => {
-          testApi();
-        }}
-      >
-        tEST
-      </Button>
-      <Button
-        onClick={() => {
-          login();
-        }}
-      >
-        LOGIN
-      </Button>
     </>
   );
 }

@@ -14,21 +14,22 @@ function BenifitsCard() {
 
   return (
     <Box display="flex" justifyContent="center">
-      <Grid container spacing={10}>
-        <Grid  data-aos="fade-right" item xs={12} sm={12} md={6} lg={6}>
-          <Card img={Global} title={"Build Global Connections and Adapt to New Cultures"} details={"Connect globally and adjust to new places."} />
-        </Grid>
-        <Grid data-aos="fade-right" item xs={12} sm={12} md={6} lg={6}>
-          <Card img={Speak} title={"Improve Communication Skills and Think in English"} details={"Speak and think effectively in English."} />
-        </Grid>
-        <Grid data-aos="fade-right" item xs={12} sm={12} md={6} lg={6}>
-          <Card img={Travelling} title={"Gain Confidence in Speaking and New Surroundings"} details={"Confidently speak English anywhere."} />
-        </Grid>
-        <Grid data-aos="fade-right" item xs={12} sm={12} md={6} lg={6}>
-        <Card img={Friend} title={"Create Global Relationships and Unlock Opportunities"} details={"Build international ties and find new chances."} />
-        </Grid>
-      </Grid>
-    </Box>
+  <Grid container spacing={10}>
+    <Grid data-aos="fade-right" item xs={12} sm={12} md={6} lg={6}>
+      <Card img={Global} title={"Seamless Event Planning and Management"} details={"Effortlessly organize and manage university events with our smart system."} />
+    </Grid>
+    <Grid data-aos="fade-right" item xs={12} sm={12} md={6} lg={6}>
+      <Card img={Speak} title={"Efficient Resource Booking and Allocation"} details={"Easily book classrooms, labs, and university resources in real-time."} />
+    </Grid>
+    <Grid data-aos="fade-right" item xs={12} sm={12} md={6} lg={6}>
+      <Card img={Travelling} title={"Streamlined Approval Process for Requests"} details={"Get quick approvals for event venues, equipment, and other resources."} />
+    </Grid>
+    <Grid data-aos="fade-right" item xs={12} sm={12} md={6} lg={6}>
+      <Card img={Friend} title={"Centralized Dashboard for Management"} details={"Monitor events, bookings, and resources all in one place."} />
+    </Grid>
+  </Grid>
+</Box>
+
   );
 }
 

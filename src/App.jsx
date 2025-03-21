@@ -11,14 +11,15 @@ import WhatsAppButton from "./Components/Whatsapp-Service/Whatsapp";
 import { Provider } from "react-redux";
 import store from "../src/app/store";
 import AlertSystem from "./Components/Alert/AlertSystem";
+import Loading from "./Components/Loadnig Animation/loading";
 
 function App() {
   return (
     <Provider store={store}>
       <ThemeProvider>
         <BrowserRouter>
-        <AlertSystem />
-          <WhatsAppButton />
+          <AlertSystem />
+          <Loading />
           <Router />
         </BrowserRouter>
       </ThemeProvider>

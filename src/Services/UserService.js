@@ -5,7 +5,7 @@ import { get, post } from "../app/apiManager";
 class UserServices {
     static async userLogin(credentials) {
         try {
-            const response = await post("/admin/login", credentials);
+            const response = await post("/user/login", credentials);
             return response.data;
         } catch (error) {
             throw error.response ? error.response.data : error;
@@ -15,10 +15,58 @@ class UserServices {
     static async getOrders() {
         try {
             const response = await get("/orders");
-            
+
             return response.data;
         } catch (error) {
             throw error.response ? error.response.data : error;
+        }
+    }
+
+    static async userRegister(data) {
+        try {
+            const response = await post("/user/register",
+                data
+            );
+            return response.data;
+        } catch (e) {
+            throw e.response ? e.response.data : e;
+        }
+    }
+    static async getUserInfo(userId) {
+        try {
+            const response = await get(`/user/getUserInfo/${userId}`)
+            return response.data;
+        } catch (e) {
+            throw e.response ? e.response.data : e;
+        }
+    }
+    static async updateUser(userId, data) {
+        try {
+            const response = await post(`/user/updateUser/${userId}`, data)
+            return response.data;
+        } catch (e) {
+            throw e.response ? e.response.data : e;
+        }
+    }
+
+    static async getAllUsers() {
+        try {
+            const response = await get(`/user/getAllUsers`);
+            return response;
+
+        } catch (error) {
+            throw e.response ? e.response.data : e;
+
+        }
+    }
+    static async getLecturer() {
+        try {
+            const response = await get(`/user/getAllLecturers`);
+            return response;
+
+        } catch (error) {
+            throw e.response ? e.response.data : e;
+
         }
     }
 }
